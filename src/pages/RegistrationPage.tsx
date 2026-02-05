@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, BookOpen, AlertCircle, ChevronRight, CalendarClock } from 'lucide-react';
 import { getAllStudyPrograms, type StudyProgram } from '@/services/registrationService';
+import { initializeRegistrationSession } from '@/services/registrationAuthService';
 import { useGlobalNotification } from '@/hooks/useGlobalNotification';
 
 function RegistrationPage() {
@@ -14,11 +15,14 @@ function RegistrationPage() {
     useEffect(() => {
         const fetchPrograms = async () => {
             try {
+                // Initialize registration session (get token)
+                await initializeRegistrationSession();
+
                 const data = await getAllStudyPrograms();
                 setStudyPrograms(data);
             } catch (err) {
                 console.error('Error:', err);
-                showError('Không thể tải danh sách chương trình học');
+                showError('Không thể kết nối đến hệ thống đăng ký học phần');
             } finally {
                 setIsLoading(false);
             }

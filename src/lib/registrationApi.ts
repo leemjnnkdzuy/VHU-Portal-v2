@@ -1,50 +1,53 @@
-import axios from 'axios';
+import axios from "axios";
 
 export const REGISTRATION_API_TIMEOUT = 30000;
 
 const registrationApi = axios.create({
-    baseURL: '/api-regist',
-    headers: {
-        apikey: 'pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzv',
-        clientid: 'dtl',
-        accept: 'application/json, text/plain, */*',
-    },
-    timeout: REGISTRATION_API_TIMEOUT,
+	baseURL: "/api-regist",
+	headers: {
+		apikey: "pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzvL2auxaFJBvw==",
+		clientid: "vhu",
+		accept: "application/json, text/plain, */*",
+	},
+	timeout: REGISTRATION_API_TIMEOUT,
 });
 
 registrationApi.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            try {
-                // Check if token is valid without decoding entirely just for existence logic
-                // Or reuse existing logic if needed. 
-                // Since this is a different API system, let's assume it accepts the same Bearer token.
-                const tokenData = JSON.parse(atob(token.split('.')[1]));
-                if (tokenData.exp * 1000 > Date.now()) {
-                    config.headers.authorization = `Bearer ${token}`;
-                } else {
-                    localStorage.removeItem('authToken');
-                    window.location.href = '/login';
-                }
-            } catch {
-                localStorage.removeItem('authToken');
-            }
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
+	(config) => {
+		const token = localStorage.getItem("registToken");
+		if (token) {
+			try {
+				const tokenData = JSON.parse(atob(token.split(".")[1]));
+				// Check if token is expired (giving 10s buffer)
+				if (tokenData.exp * 1000 > Date.now() + 10000) {
+					config.headers.authorization = `Bearer ${token}`;
+				} else {
+					console.warn("Registration token expired");
+					localStorage.removeItem("registToken");
+					localStorage.removeItem("registToken_authSource");
+					// Consider triggering a re-auth flow here if possible
+				}
+			} catch {
+				localStorage.removeItem("registToken");
+				localStorage.removeItem("registToken_authSource");
+			}
+		}
+		return config;
+	},
+	(error) => Promise.reject(error),
 );
 
 registrationApi.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('authToken');
-            window.location.href = '/login';
-        }
-        return Promise.reject(error);
-    }
+	(response) => response,
+	(error) => {
+		if (error.response?.status === 401) {
+			localStorage.removeItem("registToken");
+			localStorage.removeItem("registToken_authSource");
+			// Do not redirect to login page immediately as this might be just a regist token expiry
+			// The UI should handle re-initializing the session
+		}
+		return Promise.reject(error);
+	},
 );
 
 export default registrationApi;

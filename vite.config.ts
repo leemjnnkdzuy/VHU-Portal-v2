@@ -16,7 +16,14 @@ export default defineConfig({
       '/api-regist': {
         target: 'https://regist_api.vhu.edu.vn/api',
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api-regist/, ''),
+      },
+      '/api-portal': {
+        target: 'https://portal_api.vhu.edu.vn/api',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api-portal/, ''),
       },
     },
   },
