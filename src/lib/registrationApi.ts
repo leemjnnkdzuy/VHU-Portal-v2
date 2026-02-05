@@ -2,8 +2,12 @@ import axios from "axios";
 
 export const REGISTRATION_API_TIMEOUT = 30000;
 
+// Use proxy in dev, direct URL in production
+const isDev = import.meta.env.DEV;
+const baseURL = isDev ? "/api-regist" : "https://regist_api.vhu.edu.vn/api";
+
 const registrationApi = axios.create({
-	baseURL: "/api-regist",
+	baseURL,
 	headers: {
 		apikey: "pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzvL2auxaFJBvw==",
 		clientid: "vhu",
@@ -43,8 +47,6 @@ registrationApi.interceptors.response.use(
 		if (error.response?.status === 401) {
 			localStorage.removeItem("registToken");
 			localStorage.removeItem("registToken_authSource");
-			// Do not redirect to login page immediately as this might be just a regist token expiry
-			// The UI should handle re-initializing the session
 		}
 		return Promise.reject(error);
 	},

@@ -54,7 +54,6 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 	const [isDesktop, setIsDesktop] = useState(false);
 	const {theme, setTheme} = useTheme();
 
-	// Derive selectedPath and isRegistrationMode from location.pathname
 	const selectedPath = location.pathname;
 	const isRegistrationMode = useMemo(() => {
 		return (

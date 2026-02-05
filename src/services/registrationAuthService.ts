@@ -1,9 +1,11 @@
 import {getToken} from "./authService";
 
+// Use proxy in dev, direct URL in production
+const isDev = import.meta.env.DEV;
+
 const CONFIG = {
-	// Dùng proxy để tránh CORS khi dev
-	portal_api: "/api-portal",
-	regist_api: "/api-regist",
+	portal_api: isDev ? "/api-portal" : "https://portal_api.vhu.edu.vn/api",
+	regist_api: isDev ? "/api-regist" : "https://regist_api.vhu.edu.vn/api",
 	apiKey: "pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzvL2auxaFJBvw==",
 	clientId: "vhu",
 };
@@ -30,13 +32,9 @@ export const getRefreshToken = async (portalToken: string): Promise<string> => {
 	}
 
 	const refreshToken = await response.text();
-	console.log("✅ Bước 1: Lấy Refresh Token thành công");
-	return refreshToken.replace(/"/g, ""); // Remove quotes if present
+	return refreshToken.replace(/"/g, "");
 };
 
-/**
- * Bước 2: Lấy Token cho Regist System từ AuthenticatePortal API
- */
 export const authenticatePortal = async (refreshToken: string) => {
 	const response = await fetch(
 		`${CONFIG.regist_api}/Authen/AuthenticatePortal`,
@@ -57,14 +55,9 @@ export const authenticatePortal = async (refreshToken: string) => {
 	}
 
 	const authData = await response.json();
-	console.log("✅ Bước 2: Lấy Token cho Regist System thành công");
 	return authData;
 };
 
-/**
- * Flow hoàn chỉnh: Từ Portal Token → Regist Token
- * Chỉ tạo mới registToken khi chưa tồn tại, hết hạn, hoặc authToken thay đổi
- */
 export const initializeRegistrationSession = async () => {
 	try {
 		const portalToken = getToken();
@@ -72,7 +65,6 @@ export const initializeRegistrationSession = async () => {
 			throw new Error("Không tìm thấy token portal");
 		}
 
-		// Kiểm tra xem token đã tồn tại và còn hạn không
 		const existingRegistToken = localStorage.getItem("registToken");
 		const lastAuthToken = localStorage.getItem("registToken_authSource");
 
@@ -84,15 +76,12 @@ export const initializeRegistrationSession = async () => {
 				);
 				// Token còn hạn ít nhất 30 giây
 				if (tokenData.exp * 1000 > Date.now() + 30000) {
-					console.log("✅ Sử dụng registToken hiện tại (còn hạn)");
 					return existingRegistToken;
 				}
 			} catch {
 				// Token không hợp lệ, tiếp tục tạo mới
 			}
 		}
-
-		console.log("🔄 Bắt đầu flow authentication đăng ký học phần...\n");
 
 		// Bước 1: Lấy Refresh Token
 		const refreshToken = await getRefreshToken(portalToken);
@@ -105,7 +94,6 @@ export const initializeRegistrationSession = async () => {
 			localStorage.setItem("registToken", authData.Token);
 			// Lưu authToken gốc để theo dõi thay đổi
 			localStorage.setItem("registToken_authSource", portalToken);
-			console.log("✅ Flow hoàn tất! Token đã được lưu.");
 			return authData.Token;
 		}
 
