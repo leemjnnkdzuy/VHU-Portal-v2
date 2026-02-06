@@ -210,12 +210,12 @@ function CommunityServicePage() {
             {filteredServices.length > 0 && (
                 <Card className="border-0 shadow-lg bg-gradient-to-br from-pink-500/10 to-rose-500/10">
                     <CardContent className="py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-3 rounded-full bg-pink-500/20">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <div className="p-3 rounded-full bg-pink-500/20 shrink-0">
                                     <Heart className="w-6 h-6 text-pink-600" />
                                 </div>
-                                <div>
+                                <div className="flex-1 sm:flex-initial">
                                     <p className="text-sm text-muted-foreground">
                                         Tổng số hoạt động đã tham gia
                                     </p>
@@ -224,7 +224,7 @@ function CommunityServicePage() {
                                     </p>
                                 </div>
                             </div>
-                            <div className="text-right">
+                            <div className="flex items-center justify-between sm:block w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 sm:text-right">
                                 <p className="text-sm text-muted-foreground">Tổng điểm CTXH</p>
                                 <p className="text-3xl font-bold text-pink-600">{totalScore}</p>
                             </div>
@@ -256,36 +256,48 @@ function CommunityServicePage() {
                     {filteredServices.map((service) => (
                         <Card key={service.ActivityID} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
                             <CardContent className="p-4">
-                                <div className="flex flex-col md:flex-row md:items-start gap-4">
+                                <div className="flex md:items-start gap-4">
                                     {/* Content */}
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-foreground mb-3">
-                                            {service.Details}
-                                        </h3>
-                                        <div className="flex flex-wrap gap-4 text-sm">
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Calendar className="w-4 h-4" />
-                                                <span>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start gap-3 mb-3">
+                                            <h3 className="font-semibold text-foreground text-sm md:text-base leading-snug">
+                                                {service.Details}
+                                            </h3>
+                                            <Badge className={cn(
+                                                "md:hidden shrink-0 flex items-center gap-1 min-w-[3.5rem] justify-center py-1",
+                                                service.MarkConverted >= 5 ? "bg-gradient-to-r from-yellow-400 to-amber-500" :
+                                                    service.MarkConverted >= 4 ? "bg-gradient-to-r from-green-400 to-emerald-500" :
+                                                        "bg-gradient-to-r from-blue-400 to-cyan-500"
+                                            )}>
+                                                <span className="text-sm font-bold">{service.MarkConverted}</span>
+                                                <span className="text-[10px] opacity-80 font-normal">đ</span>
+                                            </Badge>
+                                        </div>
+
+                                        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-4 h-4 shrink-0 text-primary/70" />
+                                                <span className="line-clamp-1">
                                                     {service.ExcutionTime
                                                         ? formatDateRange(service.FromTime, service.ToTime)
                                                         : formatDate(service.FromTime)}
                                                 </span>
                                             </div>
                                             {service.Location && (
-                                                <div className="flex items-center gap-2 text-muted-foreground">
-                                                    <MapPin className="w-4 h-4" />
-                                                    <span>{service.Location}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4 shrink-0 text-primary/70" />
+                                                    <span className="line-clamp-1">{service.Location}</span>
                                                 </div>
                                             )}
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Users className="w-4 h-4" />
+                                            <div className="flex items-center gap-2">
+                                                <Users className="w-4 h-4 shrink-0 text-primary/70" />
                                                 <span>{service.NumRegisted} lượt tham gia</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Score */}
-                                    <div className="flex md:flex-col items-center gap-2 md:gap-1">
+                                    {/* Desktop Score */}
+                                    <div className="hidden md:flex flex-col items-center gap-1 shrink-0 min-w-[80px]">
                                         <Badge className={cn(
                                             "text-lg px-4 py-2 gap-1",
                                             service.MarkConverted >= 5 ? "bg-gradient-to-r from-yellow-400 to-amber-500" :

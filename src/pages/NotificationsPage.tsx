@@ -146,86 +146,78 @@ export default function NotificationsPage() {
             </div>
 
             {loading ? (
-                <Card className="border-0 shadow-xl bg-card/80 backdrop-blur-sm">
-                    <CardContent className="flex items-center justify-center py-20">
-                        <div className="flex flex-col items-center gap-4">
-                            <Loader2 className="size-10 animate-spin text-primary" />
-                            <p className="text-muted-foreground animate-pulse">Đang tải thông báo...</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="size-10 animate-spin text-primary" />
+                    <p className="text-muted-foreground animate-pulse">Đang tải thông báo...</p>
+                </div>
             ) : (
                 <>
                     {/* Controls */}
-                    <Card className="border-0 shadow-lg bg-card/80 backdrop-blur-sm">
-                        <CardContent className="p-4 md:p-6">
-                            <div className="flex flex-col lg:flex-row gap-4 justify-between">
-                                <div className="flex flex-col sm:flex-row gap-3 flex-1">
-                                    {/* Search */}
-                                    <div className="relative flex-1 max-w-md">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Tìm kiếm theo tiêu đề hoặc người gửi..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-10 bg-muted/50 border-border/50 focus:bg-background transition-colors"
-                                        />
-                                    </div>
-
-                                    {/* Filter */}
-                                    <div className="flex items-center gap-2">
-                                        <Filter className="size-4 text-muted-foreground hidden sm:block" />
-                                        <Select value={selectedSender} onValueChange={setSelectedSender}>
-                                            <SelectTrigger className="w-full sm:w-[220px] bg-muted/50 border-border/50">
-                                                <SelectValue placeholder="Chọn người gửi" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {getSenders(notifications).map((sender) => (
-                                                    <SelectItem key={sender.id} value={sender.id}>
-                                                        {sender.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-
-                                {/* Pagination Info */}
-                                <div className="flex items-center justify-between lg:justify-end gap-4">
-                                    <span className="text-sm font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary">
-                                        {filteredNotifications.length} thông báo
-                                    </span>
-
-                                    {totalPages > 1 && (
-                                        <div className="flex items-center gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="icon"
-                                                onClick={() => handlePageChange(currentPage - 1)}
-                                                disabled={currentPage === 1}
-                                                className="size-8"
-                                            >
-                                                <ChevronLeft className="size-4" />
-                                            </Button>
-                                            <span className="text-sm text-muted-foreground min-w-[80px] text-center">
-                                                Trang {currentPage} / {totalPages}
-                                            </span>
-                                            <Button
-                                                variant="outline"
-                                                size="icon"
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={currentPage === totalPages}
-                                                className="size-8"
-                                            >
-                                                <ChevronRight className="size-4" />
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
+                    <div className="flex flex-col lg:flex-row gap-4 justify-between">
+                        <div className="flex flex-col sm:flex-row gap-3 flex-1">
+                            {/* Search */}
+                            <div className="relative flex-1 max-w-md">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                                <Input
+                                    type="text"
+                                    placeholder="Tìm kiếm theo tiêu đề hoặc người gửi..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 bg-muted/50 border-border/50 focus:bg-background transition-colors"
+                                />
                             </div>
-                        </CardContent>
-                    </Card>
+
+                            {/* Filter */}
+                            <div className="flex items-center gap-2">
+                                <Filter className="size-4 text-muted-foreground hidden sm:block" />
+                                <Select value={selectedSender} onValueChange={setSelectedSender}>
+                                    <SelectTrigger className="w-full sm:w-[220px] bg-muted/50 border-border/50">
+                                        <SelectValue placeholder="Chọn người gửi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {getSenders(notifications).map((sender) => (
+                                            <SelectItem key={sender.id} value={sender.id}>
+                                                {sender.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        {/* Pagination Info */}
+                        <div className="flex items-center justify-between lg:justify-end gap-4">
+                            <span className="text-sm font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary">
+                                {filteredNotifications.length} thông báo
+                            </span>
+
+                            {totalPages > 1 && (
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="size-8"
+                                    >
+                                        <ChevronLeft className="size-4" />
+                                    </Button>
+                                    <span className="text-sm text-muted-foreground min-w-[80px] text-center">
+                                        Trang {currentPage} / {totalPages}
+                                    </span>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className="size-8"
+                                    >
+                                        <ChevronRight className="size-4" />
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
                     {/* Notification List */}
                     <div className="space-y-3">

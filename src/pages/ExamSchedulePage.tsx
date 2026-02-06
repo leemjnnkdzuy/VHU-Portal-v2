@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -126,62 +126,108 @@ function ExamSchedulePage() {
         });
     }, [allExams, searchTerm, filters]);
 
-    const renderExamTable = (exams: ExamItem[], showCredits = false) => (
-        <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-                <thead>
-                    <tr className="border-b bg-muted/50">
-                        {showCredits && <th className="text-left p-3 font-medium">Mã HP</th>}
-                        <th className="text-left p-3 font-medium">Môn học</th>
-                        {showCredits && <th className="text-center p-3 font-medium">TC</th>}
-                        <th className="text-left p-3 font-medium">Hình thức</th>
-                        <th className="text-left p-3 font-medium">Ngày thi</th>
-                        <th className="text-left p-3 font-medium">Giờ thi</th>
-                        <th className="text-left p-3 font-medium hidden md:table-cell">Phòng</th>
-                        <th className="text-center p-3 font-medium">Lần</th>
-                        <th className="text-center p-3 font-medium">Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {exams.map((exam, index) => (
-                        <tr key={index} className="border-b hover:bg-muted/30 transition-colors">
-                            {showCredits && (
-                                <td className="p-3 font-mono text-xs">{exam.CurriculumID}</td>
-                            )}
-                            <td className="p-3">{exam.CurriculumName}</td>
-                            {showCredits && (
-                                <td className="p-3 text-center font-semibold">{exam.Credits}</td>
-                            )}
-                            <td className="p-3 text-muted-foreground text-xs">{exam.HinhThucThi}</td>
-                            <td className="p-3">
-                                <div className="flex items-center gap-1">
-                                    <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                                    <span>{exam.NgayThi || '—'}</span>
-                                </div>
-                            </td>
-                            <td className="p-3">
-                                <div className="flex items-center gap-1">
-                                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                                    <span>{exam.GioThi || '—'}</span>
-                                </div>
-                            </td>
-                            <td className="p-3 hidden md:table-cell">
-                                <div className="flex items-center gap-1">
-                                    <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-                                    <span>{exam.PhongThi || '—'}</span>
-                                </div>
-                            </td>
-                            <td className="p-3 text-center">{exam.LanThi}</td>
-                            <td className="p-3 text-center">
-                                <Badge variant={exam.Status === 1 ? 'default' : 'secondary'}>
-                                    {exam.Status === 1 ? 'Đã thi' : 'Chưa thi'}
-                                </Badge>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+    const renderExamCard = (exam: ExamItem, showCredits = false) => (
+        <div className="border rounded-lg p-3 bg-card hover:bg-muted/30 transition-colors space-y-2">
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm leading-tight">{exam.CurriculumName}</h4>
+                    {showCredits && (
+                        <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                            {exam.CurriculumID} • {exam.Credits} TC
+                        </p>
+                    )}
+                </div>
+                <Badge variant={exam.Status === 1 ? 'default' : 'secondary'} className="flex-shrink-0 text-xs">
+                    {exam.Status === 1 ? 'Đã thi' : 'Chưa thi'}
+                </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3 h-3" />
+                    <span>{exam.NgayThi || '—'}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <Clock className="w-3 h-3" />
+                    <span>{exam.GioThi || '—'}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3" />
+                    <span>{exam.PhongThi || '—'}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <FileText className="w-3 h-3" />
+                    <span>{exam.HinhThucThi} • Lần {exam.LanThi}</span>
+                </div>
+            </div>
         </div>
+    );
+
+    const renderExamTable = (exams: ExamItem[], showCredits = false) => (
+        <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="border-b bg-muted/50">
+                            {showCredits && <th className="text-left p-3 font-medium">Mã HP</th>}
+                            <th className="text-left p-3 font-medium">Môn học</th>
+                            {showCredits && <th className="text-center p-3 font-medium">TC</th>}
+                            <th className="text-left p-3 font-medium">Hình thức</th>
+                            <th className="text-left p-3 font-medium">Ngày thi</th>
+                            <th className="text-left p-3 font-medium">Giờ thi</th>
+                            <th className="text-left p-3 font-medium">Phòng</th>
+                            <th className="text-center p-3 font-medium">Lần</th>
+                            <th className="text-center p-3 font-medium">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {exams.map((exam, index) => (
+                            <tr key={index} className="border-b hover:bg-muted/30 transition-colors">
+                                {showCredits && (
+                                    <td className="p-3 font-mono text-xs">{exam.CurriculumID}</td>
+                                )}
+                                <td className="p-3">{exam.CurriculumName}</td>
+                                {showCredits && (
+                                    <td className="p-3 text-center font-semibold">{exam.Credits}</td>
+                                )}
+                                <td className="p-3 text-muted-foreground text-xs">{exam.HinhThucThi}</td>
+                                <td className="p-3">
+                                    <div className="flex items-center gap-1">
+                                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                                        <span>{exam.NgayThi || '—'}</span>
+                                    </div>
+                                </td>
+                                <td className="p-3">
+                                    <div className="flex items-center gap-1">
+                                        <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                                        <span>{exam.GioThi || '—'}</span>
+                                    </div>
+                                </td>
+                                <td className="p-3">
+                                    <div className="flex items-center gap-1">
+                                        <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+                                        <span>{exam.PhongThi || '—'}</span>
+                                    </div>
+                                </td>
+                                <td className="p-3 text-center">{exam.LanThi}</td>
+                                <td className="p-3 text-center">
+                                    <Badge variant={exam.Status === 1 ? 'default' : 'secondary'}>
+                                        {exam.Status === 1 ? 'Đã thi' : 'Chưa thi'}
+                                    </Badge>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-2">
+                {exams.map((exam, index) => (
+                    <div key={index}>{renderExamCard(exam, showCredits)}</div>
+                ))}
+            </div>
+        </>
     );
 
     if (isLoading) {
@@ -230,157 +276,145 @@ function ExamSchedulePage() {
                 </TabsList>
 
                 {/* Current Exams Tab */}
-                <TabsContent value="current" className="mt-4">
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                <CardTitle className="flex items-center gap-2 text-base">
-                                    <ClipboardList className="h-5 w-5 text-primary" />
-                                    Lịch thi học kỳ
-                                </CardTitle>
-                                <div className="flex gap-3">
-                                    <Select value={selectedYear} onValueChange={setSelectedYear}>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Năm học" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {yearTermData?.YearStudy.map((year) => (
-                                                <SelectItem key={year} value={year}>
-                                                    Năm học {year}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                <TabsContent value="current" className="mt-4 space-y-4">
+                    <div className="flex flex-col gap-4">
+                        <h2 className="flex items-center gap-2 text-lg font-semibold">
+                            <ClipboardList className="h-5 w-5 text-primary" />
+                            Lịch thi học kỳ
+                        </h2>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Select value={selectedYear} onValueChange={setSelectedYear}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Năm học" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {yearTermData?.YearStudy.map((year) => (
+                                        <SelectItem key={year} value={year}>
+                                            Năm học {year}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                                    <Select value={selectedTerm} onValueChange={setSelectedTerm}>
-                                        <SelectTrigger className="w-[150px]">
-                                            <SelectValue placeholder="Học kỳ" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {yearTermData?.Terms.map((term) => (
-                                                <SelectItem key={term.TermID} value={term.TermID}>
-                                                    {term.TermName}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {isLoadingCurrent ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                                </div>
-                            ) : currentExams.length > 0 ? (
-                                renderExamTable(currentExams)
-                            ) : (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                    <p>Không có lịch thi trong học kỳ này</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                            <Select value={selectedTerm} onValueChange={setSelectedTerm}>
+                                <SelectTrigger className="w-full sm:w-[150px]">
+                                    <SelectValue placeholder="Học kỳ" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {yearTermData?.Terms.map((term) => (
+                                        <SelectItem key={term.TermID} value={term.TermID}>
+                                            {term.TermName}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    {isLoadingCurrent ? (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        </div>
+                    ) : currentExams.length > 0 ? (
+                        renderExamTable(currentExams)
+                    ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>Không có lịch thi trong học kỳ này</p>
+                        </div>
+                    )}
                 </TabsContent>
 
                 {/* All Exams Tab */}
-                <TabsContent value="all" className="mt-4">
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="flex items-center gap-2 text-base">
-                                <ClipboardList className="h-5 w-5 text-primary" />
-                                Lịch thi toàn khóa
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {/* Search and Filters */}
-                            <div className="flex flex-col md:flex-row gap-3">
-                                <div className="relative flex-1">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Tìm kiếm môn học..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-9"
-                                    />
-                                </div>
-                                <div className="flex gap-2 flex-wrap">
-                                    <Select value={filters.credits} onValueChange={(val) => setFilters(f => ({ ...f, credits: val }))}>
-                                        <SelectTrigger className="w-[100px]">
-                                            <SelectValue placeholder="TC" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Tất cả TC</SelectItem>
-                                            {uniqueValues.credits.map((credit) => (
-                                                <SelectItem key={credit} value={credit.toString()}>
-                                                    {credit} TC
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                <TabsContent value="all" className="mt-4 space-y-4">
+                    <h2 className="flex items-center gap-2 text-lg font-semibold">
+                        <ClipboardList className="h-5 w-5 text-primary" />
+                        Lịch thi toàn khóa
+                    </h2>
+                    {/* Search and Filters */}
+                    <div className="space-y-3">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Tìm kiếm môn học..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 md:flex gap-2">
+                            <Select value={filters.credits} onValueChange={(val) => setFilters(f => ({ ...f, credits: val }))}>
+                                <SelectTrigger className="w-full md:w-[100px]">
+                                    <SelectValue placeholder="TC" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả TC</SelectItem>
+                                    {uniqueValues.credits.map((credit) => (
+                                        <SelectItem key={credit} value={credit.toString()}>
+                                            {credit} TC
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                                    <Select value={filters.status} onValueChange={(val) => setFilters(f => ({ ...f, status: val }))}>
-                                        <SelectTrigger className="w-[130px]">
-                                            <SelectValue placeholder="Trạng thái" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Tất cả</SelectItem>
-                                            <SelectItem value="1">Đã thi</SelectItem>
-                                            <SelectItem value="0">Chưa thi</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                            <Select value={filters.status} onValueChange={(val) => setFilters(f => ({ ...f, status: val }))}>
+                                <SelectTrigger className="w-full md:w-[130px]">
+                                    <SelectValue placeholder="Trạng thái" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả</SelectItem>
+                                    <SelectItem value="1">Đã thi</SelectItem>
+                                    <SelectItem value="0">Chưa thi</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                                    <Select value={filters.examType} onValueChange={(val) => setFilters(f => ({ ...f, examType: val }))}>
-                                        <SelectTrigger className="w-[150px]">
-                                            <SelectValue placeholder="Hình thức" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Tất cả</SelectItem>
-                                            {uniqueValues.examTypes.map((type) => (
-                                                <SelectItem key={type} value={type}>
-                                                    {type}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                            <Select value={filters.examType} onValueChange={(val) => setFilters(f => ({ ...f, examType: val }))}>
+                                <SelectTrigger className="w-full md:w-[150px]">
+                                    <SelectValue placeholder="Hình thức" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả</SelectItem>
+                                    {uniqueValues.examTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>
+                                            {type}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                                    <Select value={filters.examAttempt} onValueChange={(val) => setFilters(f => ({ ...f, examAttempt: val }))}>
-                                        <SelectTrigger className="w-[120px]">
-                                            <SelectValue placeholder="Lần thi" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Tất cả</SelectItem>
-                                            {uniqueValues.examAttempts.map((attempt) => (
-                                                <SelectItem key={attempt} value={attempt.toString()}>
-                                                    Lần {attempt}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                            <Select value={filters.examAttempt} onValueChange={(val) => setFilters(f => ({ ...f, examAttempt: val }))}>
+                                <SelectTrigger className="w-full md:w-[120px]">
+                                    <SelectValue placeholder="Lần thi" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả</SelectItem>
+                                    {uniqueValues.examAttempts.map((attempt) => (
+                                        <SelectItem key={attempt} value={attempt.toString()}>
+                                            Lần {attempt}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Results */}
+                    {isLoadingAll ? (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        </div>
+                    ) : filteredExams.length > 0 ? (
+                        <>
+                            <div className="text-sm text-muted-foreground">
+                                Hiển thị {filteredExams.length} / {allExams.length} môn thi
                             </div>
-
-                            {/* Results */}
-                            {isLoadingAll ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                                </div>
-                            ) : filteredExams.length > 0 ? (
-                                <>
-                                    <div className="text-sm text-muted-foreground">
-                                        Hiển thị {filteredExams.length} / {allExams.length} môn thi
-                                    </div>
-                                    {renderExamTable(filteredExams, true)}
-                                </>
-                            ) : (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                    <p>{searchTerm ? 'Không tìm thấy kết quả phù hợp' : 'Không có lịch thi'}</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                            {renderExamTable(filteredExams, true)}
+                        </>
+                    ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>{searchTerm ? 'Không tìm thấy kết quả phù hợp' : 'Không có lịch thi'}</p>
+                        </div>
+                    )}
                 </TabsContent>
             </Tabs>
         </div>

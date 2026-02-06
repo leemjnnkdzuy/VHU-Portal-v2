@@ -2,12 +2,10 @@ import axios from "axios";
 
 export const REGISTRATION_API_TIMEOUT = 30000;
 
-// Use proxy in dev, direct URL in production
-const isDev = import.meta.env.DEV;
-const baseURL = isDev ? "/api-regist" : "https://regist_api.vhu.edu.vn/api";
+const WORKER_URL = "https://vhu-portal-proxy.duylelv17.workers.dev";
 
 const registrationApi = axios.create({
-	baseURL,
+	baseURL: `${WORKER_URL}/regist`,
 	headers: {
 		apikey: "pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzvL2auxaFJBvw==",
 		clientid: "vhu",
@@ -22,14 +20,12 @@ registrationApi.interceptors.request.use(
 		if (token) {
 			try {
 				const tokenData = JSON.parse(atob(token.split(".")[1]));
-				// Check if token is expired (giving 10s buffer)
 				if (tokenData.exp * 1000 > Date.now() + 10000) {
 					config.headers.authorization = `Bearer ${token}`;
 				} else {
 					console.warn("Registration token expired");
 					localStorage.removeItem("registToken");
 					localStorage.removeItem("registToken_authSource");
-					// Consider triggering a re-auth flow here if possible
 				}
 			} catch {
 				localStorage.removeItem("registToken");

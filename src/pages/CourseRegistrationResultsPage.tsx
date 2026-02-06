@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
     Select,
@@ -113,37 +113,33 @@ function CourseRegistrationResultsPage() {
             </div>
 
             {/* Filters */}
-            <Card>
-                <CardContent className="py-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <Select value={selectedYear} onValueChange={setSelectedYear}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Chọn năm học" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {yearTermData?.YearStudy.map((year) => (
-                                    <SelectItem key={year} value={year}>
-                                        Năm học {year}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+            <div className="flex flex-col sm:flex-row gap-4">
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Chọn năm học" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {yearTermData?.YearStudy.map((year) => (
+                            <SelectItem key={year} value={year}>
+                                Năm học {year}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
 
-                        <Select value={selectedTerm} onValueChange={setSelectedTerm}>
-                            <SelectTrigger className="w-full sm:w-[150px]">
-                                <SelectValue placeholder="Chọn học kỳ" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {yearTermData?.Terms.map((term) => (
-                                    <SelectItem key={term.TermID} value={term.TermID}>
-                                        {term.TermName}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </CardContent>
-            </Card>
+                <Select value={selectedTerm} onValueChange={setSelectedTerm}>
+                    <SelectTrigger className="w-full sm:w-[150px]">
+                        <SelectValue placeholder="Chọn học kỳ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {yearTermData?.Terms.map((term) => (
+                            <SelectItem key={term.TermID} value={term.TermID}>
+                                {term.TermName}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-4">
@@ -177,150 +173,70 @@ function CourseRegistrationResultsPage() {
             </div>
 
             {/* Results Table */}
-            <Card className="border-0 shadow-lg">
-                <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2">
-                        <ClipboardCheck className="h-5 w-5 text-primary" />
-                        Danh sách học phần đã đăng ký
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {isLoadingResults ? (
-                        <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                        </div>
-                    ) : registrationResults.length === 0 ? (
-                        <div className="text-center py-12">
-                            <BookMarked className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                            <p className="text-muted-foreground">Chưa có học phần nào được đăng ký</p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                                Vui lòng chọn năm học và học kỳ khác
-                            </p>
-                        </div>
-                    ) : (
-                        <>
-                            {/* Desktop Table */}
-                            <div className="hidden md:block overflow-x-auto">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="border-b border-border">
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">STT</th>
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Mã HP</th>
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Tên học phần</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Tín chỉ</th>
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Giảng viên</th>
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Loại ĐK</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Trạng thái</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {registrationResults.map((item, index) => (
-                                            <tr
-                                                key={`${item.ScheduleStudyUnitID}-${index}`}
-                                                className="border-b border-border/50 transition-colors hover:bg-muted/50"
-                                            >
-                                                <td className="py-4 px-4 text-sm text-muted-foreground">
-                                                    {index + 1}
-                                                </td>
-                                                <td className="py-4 px-4">
-                                                    <Badge variant="outline" className="font-mono">
-                                                        {item.CurriculumID}
-                                                    </Badge>
-                                                </td>
-                                                <td className="py-4 px-4">
-                                                    <p className="text-sm font-medium text-foreground line-clamp-2">
-                                                        {item.CurriculumName}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                                                        {item.ListOfWeekSchedules}
-                                                    </p>
-                                                </td>
-                                                <td className="py-4 px-4 text-center">
-                                                    <Badge className="bg-primary/10 text-primary border-primary/30">
-                                                        {item.Credits} TC
-                                                    </Badge>
-                                                </td>
-                                                <td className="py-4 px-4 text-sm text-muted-foreground">
-                                                    {item.ProfessorName || '—'}
-                                                </td>
-                                                <td className="py-4 px-4">
-                                                    <Badge
-                                                        variant="outline"
-                                                        className={cn(
-                                                            "text-xs",
-                                                            item.RegistType === 'Kế hoạch' && "border-green-500/50 text-green-600 bg-green-500/10",
-                                                            item.RegistType === 'Học lại' && "border-amber-500/50 text-amber-600 bg-amber-500/10",
-                                                            item.RegistType === 'Ngoài kế hoạch' && "border-blue-500/50 text-blue-600 bg-blue-500/10"
-                                                        )}
-                                                    >
-                                                        {item.RegistType}
-                                                    </Badge>
-                                                </td>
-                                                <td className="py-4 px-4 text-center">
-                                                    <Badge
-                                                        className={cn(
-                                                            "text-xs",
-                                                            item.Status === 4 && "bg-green-500/20 text-green-600 border-green-500/30",
-                                                            item.Status === 6 && "bg-blue-500/20 text-blue-600 border-blue-500/30",
-                                                            item.Status !== 4 && item.Status !== 6 && "bg-muted text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {item.TinhTrang}
-                                                    </Badge>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Mobile Cards */}
-                            <div className="md:hidden space-y-3">
-                                {registrationResults.map((item, index) => (
-                                    <div
-                                        key={`${item.ScheduleStudyUnitID}-${index}`}
-                                        className="p-4 rounded-xl border border-border bg-card"
-                                    >
-                                        <div className="flex items-start justify-between mb-3">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                    <Badge variant="outline" className="font-mono text-xs">
-                                                        {item.CurriculumID}
-                                                    </Badge>
-                                                    <Badge className="bg-primary/10 text-primary border-primary/30 text-xs">
-                                                        {item.Credits} TC
-                                                    </Badge>
-                                                    <Badge
-                                                        className={cn(
-                                                            "text-xs",
-                                                            item.Status === 4 && "bg-green-500/20 text-green-600 border-green-500/30",
-                                                            item.Status === 6 && "bg-blue-500/20 text-blue-600 border-blue-500/30",
-                                                        )}
-                                                    >
-                                                        {item.TinhTrang}
-                                                    </Badge>
-                                                </div>
-                                                <p className="font-semibold text-foreground line-clamp-2">
+            <div>
+                <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+                    <ClipboardCheck className="h-5 w-5 text-primary" />
+                    Danh sách học phần đã đăng ký
+                </h2>
+                {isLoadingResults ? (
+                    <div className="flex items-center justify-center py-12">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                ) : registrationResults.length === 0 ? (
+                    <div className="text-center py-12">
+                        <BookMarked className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                        <p className="text-muted-foreground">Chưa có học phần nào được đăng ký</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Vui lòng chọn năm học và học kỳ khác
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Desktop Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-border">
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">STT</th>
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Mã HP</th>
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Tên học phần</th>
+                                        <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Tín chỉ</th>
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Giảng viên</th>
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Loại ĐK</th>
+                                        <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {registrationResults.map((item, index) => (
+                                        <tr
+                                            key={`${item.ScheduleStudyUnitID}-${index}`}
+                                            className="border-b border-border/50 transition-colors hover:bg-muted/50"
+                                        >
+                                            <td className="py-4 px-4 text-sm text-muted-foreground">
+                                                {index + 1}
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <Badge variant="outline" className="font-mono">
+                                                    {item.CurriculumID}
+                                                </Badge>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <p className="text-sm font-medium text-foreground line-clamp-2">
                                                     {item.CurriculumName}
                                                 </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2 text-sm">
-                                            {item.ProfessorName && (
-                                                <div className="flex items-center gap-2 text-muted-foreground">
-                                                    <User className="w-4 h-4" />
-                                                    <span>{item.ProfessorName}</span>
-                                                </div>
-                                            )}
-                                            {item.ListOfWeekSchedules && (
-                                                <div className="flex items-start gap-2 text-muted-foreground">
-                                                    <Calendar className="w-4 h-4 mt-0.5 shrink-0" />
-                                                    <span className="line-clamp-2">{item.ListOfWeekSchedules}</span>
-                                                </div>
-                                            )}
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Hash className="w-4 h-4" />
+                                                <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                                    {item.ListOfWeekSchedules}
+                                                </p>
+                                            </td>
+                                            <td className="py-4 px-4 text-center">
+                                                <Badge className="bg-primary/10 text-primary border-primary/30">
+                                                    {item.Credits} TC
+                                                </Badge>
+                                            </td>
+                                            <td className="py-4 px-4 text-sm text-muted-foreground">
+                                                {item.ProfessorName || '—'}
+                                            </td>
+                                            <td className="py-4 px-4">
                                                 <Badge
                                                     variant="outline"
                                                     className={cn(
@@ -332,15 +248,91 @@ function CourseRegistrationResultsPage() {
                                                 >
                                                     {item.RegistType}
                                                 </Badge>
+                                            </td>
+                                            <td className="py-4 px-4 text-center">
+                                                <Badge
+                                                    className={cn(
+                                                        "text-xs",
+                                                        item.Status === 4 && "bg-green-500/20 text-green-600 border-green-500/30",
+                                                        item.Status === 6 && "bg-blue-500/20 text-blue-600 border-blue-500/30",
+                                                        item.Status !== 4 && item.Status !== 6 && "bg-muted text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {item.TinhTrang}
+                                                </Badge>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile Cards */}
+                        <div className="md:hidden space-y-3">
+                            {registrationResults.map((item, index) => (
+                                <div
+                                    key={`${item.ScheduleStudyUnitID}-${index}`}
+                                    className="p-4 rounded-xl border border-border bg-card"
+                                >
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                <Badge variant="outline" className="font-mono text-xs">
+                                                    {item.CurriculumID}
+                                                </Badge>
+                                                <Badge className="bg-primary/10 text-primary border-primary/30 text-xs">
+                                                    {item.Credits} TC
+                                                </Badge>
+                                                <Badge
+                                                    className={cn(
+                                                        "text-xs",
+                                                        item.Status === 4 && "bg-green-500/20 text-green-600 border-green-500/30",
+                                                        item.Status === 6 && "bg-blue-500/20 text-blue-600 border-blue-500/30",
+                                                    )}
+                                                >
+                                                    {item.TinhTrang}
+                                                </Badge>
                                             </div>
+                                            <p className="font-semibold text-foreground line-clamp-2">
+                                                {item.CurriculumName}
+                                            </p>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </CardContent>
-            </Card>
+
+                                    <div className="space-y-2 text-sm">
+                                        {item.ProfessorName && (
+                                            <div className="flex items-center gap-2 text-muted-foreground">
+                                                <User className="w-4 h-4" />
+                                                <span>{item.ProfessorName}</span>
+                                            </div>
+                                        )}
+                                        {item.ListOfWeekSchedules && (
+                                            <div className="flex items-start gap-2 text-muted-foreground">
+                                                <Calendar className="w-4 h-4 mt-0.5 shrink-0" />
+                                                <span className="line-clamp-2">{item.ListOfWeekSchedules}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                            <Hash className="w-4 h-4" />
+                                            <Badge
+                                                variant="outline"
+                                                className={cn(
+                                                    "text-xs",
+                                                    item.RegistType === 'Kế hoạch' && "border-green-500/50 text-green-600 bg-green-500/10",
+                                                    item.RegistType === 'Học lại' && "border-amber-500/50 text-amber-600 bg-amber-500/10",
+                                                    item.RegistType === 'Ngoài kế hoạch' && "border-blue-500/50 text-blue-600 bg-blue-500/10"
+                                                )}
+                                            >
+                                                {item.RegistType}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

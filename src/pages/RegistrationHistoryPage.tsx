@@ -69,7 +69,6 @@ function RegistrationHistoryPage() {
 		initialize();
 	}, [showError]);
 
-	// Fetch history when year/term changes
 	useEffect(() => {
 		if (!selectedYearStudy || !selectedTermId) return;
 
@@ -93,7 +92,6 @@ function RegistrationHistoryPage() {
 		fetchHistory();
 	}, [selectedYearStudy, selectedTermId, showError]);
 
-	// Get term display name
 	const getTermName = (termId: string) => {
 		switch (termId) {
 			case "HK01":
@@ -107,7 +105,6 @@ function RegistrationHistoryPage() {
 		}
 	};
 
-	// Refresh handler
 	const handleRefresh = async () => {
 		if (!selectedYearStudy || !selectedTermId) return;
 		setIsLoading(true);

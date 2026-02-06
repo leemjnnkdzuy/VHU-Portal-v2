@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { getStudentConductScore, type ConductScore } from '@/services/conductService';
 import { Loader2, AlertCircle, Award, Trophy, Star, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -180,128 +180,124 @@ function ConductScorePage() {
             )}
 
             {/* Score History */}
-            <Card className="border-0 shadow-lg">
-                <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2">
-                        <Award className="h-5 w-5 text-primary" />
-                        Lịch sử điểm rèn luyện
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {conductScores.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Award className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                            <p className="text-muted-foreground">Chưa có dữ liệu điểm rèn luyện</p>
-                        </div>
-                    ) : (
-                        <>
-                            {/* Desktop Table */}
-                            <div className="hidden md:block overflow-x-auto">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="border-b border-border">
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Năm học</th>
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Học kỳ</th>
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Lớp</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Điểm rèn luyện</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Xếp loại</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {conductScores.map((score, index) => {
-                                            const rankConfig = getRankConfig(score.XepLoai);
-                                            return (
-                                                <tr
-                                                    key={`${score.YearStudy}-${score.TermID}`}
-                                                    className={cn(
-                                                        "border-b border-border/50 transition-colors hover:bg-muted/50",
-                                                        index === conductScores.length - 1 && "bg-primary/5"
-                                                    )}
-                                                >
-                                                    <td className="py-4 px-4 text-sm font-medium text-foreground">
-                                                        {score.YearStudy}
-                                                    </td>
-                                                    <td className="py-4 px-4 text-sm text-foreground">
-                                                        Học kỳ {score.TermID}
-                                                    </td>
-                                                    <td className="py-4 px-4 text-sm text-muted-foreground">
-                                                        {score.ClassStudentName}
-                                                    </td>
-                                                    <td className="py-4 px-4 text-center">
-                                                        <span className="text-lg font-bold text-foreground">
-                                                            {score.TongDiem || '—'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-4 px-4 text-center">
-                                                        {score.XepLoai ? (
-                                                            <span className={cn(
-                                                                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium",
-                                                                rankConfig.color
-                                                            )}>
-                                                                {(() => {
-                                                                    const Icon = rankConfig.icon;
-                                                                    return <Icon className="w-4 h-4" />;
-                                                                })()}
-                                                                {score.XepLoai}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-muted-foreground">—</span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Mobile Cards */}
-                            <div className="md:hidden space-y-3">
-                                {conductScores.map((score, index) => {
-                                    const rankConfig = getRankConfig(score.XepLoai);
-                                    const Icon = rankConfig.icon;
-                                    return (
-                                        <div
-                                            key={`${score.YearStudy}-${score.TermID}`}
-                                            className={cn(
-                                                "p-4 rounded-xl border transition-all",
-                                                index === conductScores.length - 1
-                                                    ? "border-primary/30 bg-primary/5"
-                                                    : "border-border bg-card"
-                                            )}
-                                        >
-                                            <div className="flex items-start justify-between mb-3">
-                                                <div>
-                                                    <p className="font-semibold text-foreground">{score.YearStudy}</p>
-                                                    <p className="text-sm text-muted-foreground">Học kỳ {score.TermID}</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-2xl font-bold text-foreground">{score.TongDiem || '—'}</p>
-                                                    <p className="text-xs text-muted-foreground">điểm</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                                                <span className="text-sm text-muted-foreground">{score.ClassStudentName}</span>
-                                                {score.XepLoai ? (
-                                                    <span className={cn(
-                                                        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium",
-                                                        rankConfig.color
-                                                    )}>
-                                                        <Icon className="w-4 h-4" />
-                                                        {score.XepLoai}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-muted-foreground text-sm">—</span>
+            <div>
+                <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+                    <Award className="h-5 w-5 text-primary" />
+                    Lịch sử điểm rèn luyện
+                </h2>
+                {conductScores.length === 0 ? (
+                    <div className="text-center py-12">
+                        <Award className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                        <p className="text-muted-foreground">Chưa có dữ liệu điểm rèn luyện</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Desktop Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-border">
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Năm học</th>
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Học kỳ</th>
+                                        <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Lớp</th>
+                                        <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Điểm rèn luyện</th>
+                                        <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Xếp loại</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {conductScores.map((score, index) => {
+                                        const rankConfig = getRankConfig(score.XepLoai);
+                                        return (
+                                            <tr
+                                                key={`${score.YearStudy}-${score.TermID}`}
+                                                className={cn(
+                                                    "border-b border-border/50 transition-colors hover:bg-muted/50",
+                                                    index === conductScores.length - 1 && "bg-primary/5"
                                                 )}
+                                            >
+                                                <td className="py-4 px-4 text-sm font-medium text-foreground">
+                                                    {score.YearStudy}
+                                                </td>
+                                                <td className="py-4 px-4 text-sm text-foreground">
+                                                    Học kỳ {score.TermID}
+                                                </td>
+                                                <td className="py-4 px-4 text-sm text-muted-foreground">
+                                                    {score.ClassStudentName}
+                                                </td>
+                                                <td className="py-4 px-4 text-center">
+                                                    <span className="text-lg font-bold text-foreground">
+                                                        {score.TongDiem || '—'}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 px-4 text-center">
+                                                    {score.XepLoai ? (
+                                                        <span className={cn(
+                                                            "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium",
+                                                            rankConfig.color
+                                                        )}>
+                                                            {(() => {
+                                                                const Icon = rankConfig.icon;
+                                                                return <Icon className="w-4 h-4" />;
+                                                            })()}
+                                                            {score.XepLoai}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-muted-foreground">—</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile Cards */}
+                        <div className="md:hidden space-y-3">
+                            {conductScores.map((score, index) => {
+                                const rankConfig = getRankConfig(score.XepLoai);
+                                const Icon = rankConfig.icon;
+                                return (
+                                    <div
+                                        key={`${score.YearStudy}-${score.TermID}`}
+                                        className={cn(
+                                            "p-4 rounded-xl border transition-all",
+                                            index === conductScores.length - 1
+                                                ? "border-primary/30 bg-primary/5"
+                                                : "border-border bg-card"
+                                        )}
+                                    >
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div>
+                                                <p className="font-semibold text-foreground">{score.YearStudy}</p>
+                                                <p className="text-sm text-muted-foreground">Học kỳ {score.TermID}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-2xl font-bold text-foreground">{score.TongDiem || '—'}</p>
+                                                <p className="text-xs text-muted-foreground">điểm</p>
                                             </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </>
-                    )}
-                </CardContent>
-            </Card>
+                                        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                                            <span className="text-sm text-muted-foreground">{score.ClassStudentName}</span>
+                                            {score.XepLoai ? (
+                                                <span className={cn(
+                                                    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium",
+                                                    rankConfig.color
+                                                )}>
+                                                    <Icon className="w-4 h-4" />
+                                                    {score.XepLoai}
+                                                </span>
+                                            ) : (
+                                                <span className="text-muted-foreground text-sm">—</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

@@ -68,7 +68,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
             />
 
             <main
-                className={`min-h-screen transition-all duration-300 pt-8 lg:pt-4 pb-8 px-4 ${isSidebarOpen && isDesktop ? 'ml-72' : 'pt-16'
+                className={`min-h-screen transition-all duration-300 lg:pt-4 pb-8 ${isSidebarOpen && isDesktop ? 'ml-72 px-8 mt-4' : 'pt-16 px-4'
                     }`}
             >
                 {children}

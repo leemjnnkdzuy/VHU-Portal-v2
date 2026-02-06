@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
@@ -253,273 +253,269 @@ function FinancePage() {
                     </div>
 
                     {/* Finance Table */}
-                    <Card className="border-0 shadow-lg">
-                        <CardHeader className="pb-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <CardTitle className="flex items-center gap-2">
-                                    <Wallet className="h-5 w-5 text-primary" />
-                                    Chi tiết học phí
-                                </CardTitle>
-                                <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
-                                    <button
-                                        onClick={() => setViewMode('all')}
-                                        className={cn(
-                                            "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-1",
-                                            viewMode === 'all'
-                                                ? "bg-background text-foreground shadow"
-                                                : "hover:bg-background/50 hover:text-foreground"
-                                        )}
-                                    >
-                                        <List className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Tất cả</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setViewMode('byYear')}
-                                        className={cn(
-                                            "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-1",
-                                            viewMode === 'byYear'
-                                                ? "bg-background text-foreground shadow"
-                                                : "hover:bg-background/50 hover:text-foreground"
-                                        )}
-                                    >
-                                        <CalendarDays className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Theo năm</span>
-                                    </button>
-                                </div>
+                    <div>
+                        <div className="flex items-center justify-between gap-3 mb-4">
+                            <h2 className="flex items-center gap-2 text-base sm:text-lg font-semibold">
+                                <Wallet className="h-5 w-5 text-primary shrink-0" />
+                                <span>Chi tiết học phí</span>
+                            </h2>
+                            <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground shrink-0">
+                                <button
+                                    onClick={() => setViewMode('all')}
+                                    className={cn(
+                                        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-2 sm:px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-1",
+                                        viewMode === 'all'
+                                            ? "bg-background text-foreground shadow"
+                                            : "hover:bg-background/50 hover:text-foreground"
+                                    )}
+                                >
+                                    <List className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Tất cả</span>
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('byYear')}
+                                    className={cn(
+                                        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-2 sm:px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-1",
+                                        viewMode === 'byYear'
+                                            ? "bg-background text-foreground shadow"
+                                            : "hover:bg-background/50 hover:text-foreground"
+                                    )}
+                                >
+                                    <CalendarDays className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Theo năm</span>
+                                </button>
                             </div>
-                        </CardHeader>
-                        <CardContent>
-                            {filteredFinanceData.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <Wallet className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                                    <p className="text-muted-foreground">Chưa có dữ liệu học phí</p>
-                                </div>
-                            ) : viewMode === 'all' ? (
-                                <>
-                                    {/* Desktop Table - All View */}
-                                    <div className="hidden md:block overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead>
-                                                <tr className="border-b border-border">
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Nội dung</th>
-                                                    <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Năm học</th>
-                                                    <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Loại</th>
-                                                    <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Số tiền</th>
-                                                    <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Đã đóng</th>
-                                                    <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Còn nợ</th>
-                                                    <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Trạng thái</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {filteredFinanceData.map((item) => {
-                                                    const statusConfig = getStatusConfig(item);
-                                                    const StatusIcon = statusConfig.icon;
-                                                    return (
-                                                        <tr
-                                                            key={item.TransactionID}
-                                                            className={cn(
-                                                                "border-b border-border/50 transition-colors hover:bg-muted/50",
-                                                                item.ConNo > 0 && "bg-red-500/5"
+                        </div>
+                        {filteredFinanceData.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Wallet className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                                <p className="text-muted-foreground">Chưa có dữ liệu học phí</p>
+                            </div>
+                        ) : viewMode === 'all' ? (
+                            <>
+                                {/* Desktop Table - All View */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-border">
+                                                <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Nội dung</th>
+                                                <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Năm học</th>
+                                                <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Loại</th>
+                                                <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Số tiền</th>
+                                                <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Đã đóng</th>
+                                                <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Còn nợ</th>
+                                                <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">Trạng thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredFinanceData.map((item) => {
+                                                const statusConfig = getStatusConfig(item);
+                                                const StatusIcon = statusConfig.icon;
+                                                return (
+                                                    <tr
+                                                        key={item.TransactionID}
+                                                        className={cn(
+                                                            "border-b border-border/50 transition-colors hover:bg-muted/50",
+                                                            item.ConNo > 0 && "bg-red-500/5"
+                                                        )}
+                                                    >
+                                                        <td className="py-4 px-4">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-foreground line-clamp-1">
+                                                                    {item.FeeName || 'Phí khác'}
+                                                                </p>
+                                                                {item.FeeID && (
+                                                                    <p className="text-xs text-muted-foreground font-mono">{item.FeeID}</p>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 px-4 text-sm text-center text-muted-foreground">
+                                                            {item.YearStudy} - {item.TermID}
+                                                        </td>
+                                                        <td className="py-4 px-4 text-sm text-center">
+                                                            {item.RegistType && (
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {item.RegistType}
+                                                                </Badge>
                                                             )}
-                                                        >
-                                                            <td className="py-4 px-4">
-                                                                <div>
-                                                                    <p className="text-sm font-medium text-foreground line-clamp-1">
-                                                                        {item.FeeName || 'Phí khác'}
-                                                                    </p>
-                                                                    {item.FeeID && (
-                                                                        <p className="text-xs text-muted-foreground font-mono">{item.FeeID}</p>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                            <td className="py-4 px-4 text-sm text-center text-muted-foreground">
-                                                                {item.YearStudy} - {item.TermID}
-                                                            </td>
-                                                            <td className="py-4 px-4 text-sm text-center">
+                                                        </td>
+                                                        <td className="py-4 px-4 text-sm text-right font-medium">
+                                                            {formatCurrency(item.DebtAmount)}
+                                                        </td>
+                                                        <td className="py-4 px-4 text-sm text-right text-green-600 font-medium">
+                                                            {formatCurrency(item.PaidAmount)}
+                                                        </td>
+                                                        <td className={cn(
+                                                            "py-4 px-4 text-sm text-right font-medium",
+                                                            item.ConNo > 0 ? "text-red-600" : "text-green-600"
+                                                        )}>
+                                                            {formatCurrency(item.ConNo)}
+                                                        </td>
+                                                        <td className="py-4 px-4 text-center">
+                                                            <Badge className={cn("gap-1", statusConfig.color)}>
+                                                                <StatusIcon className="w-3 h-3" />
+                                                                {statusConfig.text}
+                                                            </Badge>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile Cards - All View */}
+                                <div className="md:hidden space-y-3">
+                                    {filteredFinanceData.map((item) => {
+                                        const statusConfig = getStatusConfig(item);
+                                        const StatusIcon = statusConfig.icon;
+                                        return (
+                                            <div
+                                                key={item.TransactionID}
+                                                className={cn(
+                                                    "p-4 rounded-xl border transition-all",
+                                                    item.ConNo > 0 ? "border-red-500/30 bg-red-500/5" : "border-border bg-card"
+                                                )}
+                                            >
+                                                <div className="flex items-start justify-between mb-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-semibold text-foreground line-clamp-2">
+                                                            {item.FeeName || 'Phí khác'}
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {item.YearStudy} - {item.TermID}
+                                                        </p>
+                                                    </div>
+                                                    <Badge className={cn("gap-1 shrink-0 ml-2", statusConfig.color)}>
+                                                        <StatusIcon className="w-3 h-3" />
+                                                        {statusConfig.text}
+                                                    </Badge>
+                                                </div>
+
+                                                {item.RegistType && (
+                                                    <div className="mb-3">
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {item.RegistType}
+                                                        </Badge>
+                                                    </div>
+                                                )}
+
+                                                <div className="grid grid-cols-3 gap-2 text-sm pt-3 border-t border-border/50">
+                                                    <div className="text-center">
+                                                        <p className="font-semibold text-xs md:text-sm">{formatCurrency(item.DebtAmount)}</p>
+                                                        <p className="text-xs text-muted-foreground">Học phí</p>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <p className="font-semibold text-green-600 text-xs md:text-sm">{formatCurrency(item.PaidAmount)}</p>
+                                                        <p className="text-xs text-muted-foreground">Đã đóng</p>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <p className={cn("font-semibold text-xs md:text-sm", item.ConNo > 0 ? "text-red-600" : "text-green-600")}>
+                                                            {formatCurrency(item.ConNo)}
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">Còn nợ</p>
+                                                    </div>
+                                                </div>
+
+                                                {item.PaidDate && (
+                                                    <p className="text-xs text-muted-foreground mt-2">
+                                                        Ngày đóng: {item.PaidDate}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        ) : (
+                            /* By Year View */
+                            <div className="space-y-4">
+                                {groupedByYear.map(([yearKey, group]) => (
+                                    <div key={yearKey} className="border rounded-xl overflow-hidden">
+                                        {/* Year Header */}
+                                        <div className={cn(
+                                            "p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2",
+                                            group.totalDebt > 0 ? "bg-red-500/10" : "bg-green-500/10"
+                                        )}>
+                                            <div className="flex items-center gap-3">
+                                                <CalendarDays className="w-5 h-5 text-primary" />
+                                                <div>
+                                                    <h3 className="font-semibold text-foreground">{yearKey}</h3>
+                                                    <p className="text-xs text-muted-foreground">{group.items.length} khoản phí</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4 text-sm">
+                                                <div className="text-center">
+                                                    <p className="font-bold">{formatCurrency(group.totalAmount)}</p>
+                                                    <p className="text-xs text-muted-foreground">Tổng</p>
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="font-bold text-green-600">{formatCurrency(group.totalPaid)}</p>
+                                                    <p className="text-xs text-muted-foreground">Đã đóng</p>
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className={cn("font-bold", group.totalDebt > 0 ? "text-red-600" : "text-green-600")}>
+                                                        {formatCurrency(group.totalDebt)}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">Còn nợ</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Year Items */}
+                                        <div className="divide-y divide-border/50">
+                                            {group.items.map((item) => {
+                                                const statusConfig = getStatusConfig(item);
+                                                const StatusIcon = statusConfig.icon;
+                                                return (
+                                                    <div
+                                                        key={item.TransactionID}
+                                                        className={cn(
+                                                            "p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2",
+                                                            item.ConNo > 0 && "bg-red-500/5"
+                                                        )}
+                                                    >
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-medium text-foreground line-clamp-1">
+                                                                {item.FeeName || 'Phí khác'}
+                                                            </p>
+                                                            <div className="flex items-center gap-2 mt-1">
                                                                 {item.RegistType && (
                                                                     <Badge variant="outline" className="text-xs">
                                                                         {item.RegistType}
                                                                     </Badge>
                                                                 )}
-                                                            </td>
-                                                            <td className="py-4 px-4 text-sm text-right font-medium">
-                                                                {formatCurrency(item.DebtAmount)}
-                                                            </td>
-                                                            <td className="py-4 px-4 text-sm text-right text-green-600 font-medium">
-                                                                {formatCurrency(item.PaidAmount)}
-                                                            </td>
-                                                            <td className={cn(
-                                                                "py-4 px-4 text-sm text-right font-medium",
-                                                                item.ConNo > 0 ? "text-red-600" : "text-green-600"
-                                                            )}>
-                                                                {formatCurrency(item.ConNo)}
-                                                            </td>
-                                                            <td className="py-4 px-4 text-center">
-                                                                <Badge className={cn("gap-1", statusConfig.color)}>
-                                                                    <StatusIcon className="w-3 h-3" />
-                                                                    {statusConfig.text}
-                                                                </Badge>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {/* Mobile Cards - All View */}
-                                    <div className="md:hidden space-y-3">
-                                        {filteredFinanceData.map((item) => {
-                                            const statusConfig = getStatusConfig(item);
-                                            const StatusIcon = statusConfig.icon;
-                                            return (
-                                                <div
-                                                    key={item.TransactionID}
-                                                    className={cn(
-                                                        "p-4 rounded-xl border transition-all",
-                                                        item.ConNo > 0 ? "border-red-500/30 bg-red-500/5" : "border-border bg-card"
-                                                    )}
-                                                >
-                                                    <div className="flex items-start justify-between mb-3">
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="font-semibold text-foreground line-clamp-2">
-                                                                {item.FeeName || 'Phí khác'}
-                                                            </p>
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {item.YearStudy} - {item.TermID}
-                                                            </p>
+                                                                {item.PaidDate && (
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        Đóng: {item.PaidDate}
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <Badge className={cn("gap-1 shrink-0 ml-2", statusConfig.color)}>
-                                                            <StatusIcon className="w-3 h-3" />
-                                                            {statusConfig.text}
-                                                        </Badge>
-                                                    </div>
-
-                                                    {item.RegistType && (
-                                                        <div className="mb-3">
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {item.RegistType}
+                                                        <div className="flex items-center gap-3 sm:gap-4">
+                                                            <div className="text-right">
+                                                                <p className="text-sm font-medium">{formatCurrency(item.DebtAmount)}</p>
+                                                                <p className={cn(
+                                                                    "text-xs",
+                                                                    item.ConNo > 0 ? "text-red-600" : "text-green-600"
+                                                                )}>
+                                                                    Nợ: {formatCurrency(item.ConNo)}
+                                                                </p>
+                                                            </div>
+                                                            <Badge className={cn("gap-1 shrink-0", statusConfig.color)}>
+                                                                <StatusIcon className="w-3 h-3" />
+                                                                <span className="hidden sm:inline">{statusConfig.text}</span>
                                                             </Badge>
                                                         </div>
-                                                    )}
-
-                                                    <div className="grid grid-cols-3 gap-2 text-sm pt-3 border-t border-border/50">
-                                                        <div className="text-center">
-                                                            <p className="font-semibold text-xs md:text-sm">{formatCurrency(item.DebtAmount)}</p>
-                                                            <p className="text-xs text-muted-foreground">Học phí</p>
-                                                        </div>
-                                                        <div className="text-center">
-                                                            <p className="font-semibold text-green-600 text-xs md:text-sm">{formatCurrency(item.PaidAmount)}</p>
-                                                            <p className="text-xs text-muted-foreground">Đã đóng</p>
-                                                        </div>
-                                                        <div className="text-center">
-                                                            <p className={cn("font-semibold text-xs md:text-sm", item.ConNo > 0 ? "text-red-600" : "text-green-600")}>
-                                                                {formatCurrency(item.ConNo)}
-                                                            </p>
-                                                            <p className="text-xs text-muted-foreground">Còn nợ</p>
-                                                        </div>
                                                     </div>
-
-                                                    {item.PaidDate && (
-                                                        <p className="text-xs text-muted-foreground mt-2">
-                                                            Ngày đóng: {item.PaidDate}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </>
-                            ) : (
-                                /* By Year View */
-                                <div className="space-y-4">
-                                    {groupedByYear.map(([yearKey, group]) => (
-                                        <div key={yearKey} className="border rounded-xl overflow-hidden">
-                                            {/* Year Header */}
-                                            <div className={cn(
-                                                "p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2",
-                                                group.totalDebt > 0 ? "bg-red-500/10" : "bg-green-500/10"
-                                            )}>
-                                                <div className="flex items-center gap-3">
-                                                    <CalendarDays className="w-5 h-5 text-primary" />
-                                                    <div>
-                                                        <h3 className="font-semibold text-foreground">{yearKey}</h3>
-                                                        <p className="text-xs text-muted-foreground">{group.items.length} khoản phí</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-4 text-sm">
-                                                    <div className="text-center">
-                                                        <p className="font-bold">{formatCurrency(group.totalAmount)}</p>
-                                                        <p className="text-xs text-muted-foreground">Tổng</p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <p className="font-bold text-green-600">{formatCurrency(group.totalPaid)}</p>
-                                                        <p className="text-xs text-muted-foreground">Đã đóng</p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <p className={cn("font-bold", group.totalDebt > 0 ? "text-red-600" : "text-green-600")}>
-                                                            {formatCurrency(group.totalDebt)}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">Còn nợ</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Year Items */}
-                                            <div className="divide-y divide-border/50">
-                                                {group.items.map((item) => {
-                                                    const statusConfig = getStatusConfig(item);
-                                                    const StatusIcon = statusConfig.icon;
-                                                    return (
-                                                        <div
-                                                            key={item.TransactionID}
-                                                            className={cn(
-                                                                "p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2",
-                                                                item.ConNo > 0 && "bg-red-500/5"
-                                                            )}
-                                                        >
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="text-sm font-medium text-foreground line-clamp-1">
-                                                                    {item.FeeName || 'Phí khác'}
-                                                                </p>
-                                                                <div className="flex items-center gap-2 mt-1">
-                                                                    {item.RegistType && (
-                                                                        <Badge variant="outline" className="text-xs">
-                                                                            {item.RegistType}
-                                                                        </Badge>
-                                                                    )}
-                                                                    {item.PaidDate && (
-                                                                        <span className="text-xs text-muted-foreground">
-                                                                            Đóng: {item.PaidDate}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center gap-3 sm:gap-4">
-                                                                <div className="text-right">
-                                                                    <p className="text-sm font-medium">{formatCurrency(item.DebtAmount)}</p>
-                                                                    <p className={cn(
-                                                                        "text-xs",
-                                                                        item.ConNo > 0 ? "text-red-600" : "text-green-600"
-                                                                    )}>
-                                                                        Nợ: {formatCurrency(item.ConNo)}
-                                                                    </p>
-                                                                </div>
-                                                                <Badge className={cn("gap-1 shrink-0", statusConfig.color)}>
-                                                                    <StatusIcon className="w-3 h-3" />
-                                                                    <span className="hidden sm:inline">{statusConfig.text}</span>
-                                                                </Badge>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
+                                                );
+                                            })}
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </TabsContent>
 
                 {/* Scholarship Tab */}
@@ -557,110 +553,106 @@ function FinancePage() {
                     </div>
 
                     {/* Scholarship Table */}
-                    <Card className="border-0 shadow-lg">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="flex items-center gap-2">
-                                <GraduationCap className="h-5 w-5 text-primary" />
-                                Chính sách miễn giảm học phí
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {normalizedScholarshipData.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <Gift className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                                    <p className="text-muted-foreground">Chưa có dữ liệu miễn giảm</p>
-                                </div>
-                            ) : (
-                                <>
-                                    {/* Desktop Table */}
-                                    <div className="hidden md:block overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead>
-                                                <tr className="border-b border-border">
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Năm học</th>
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Học kỳ</th>
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Chính sách</th>
-                                                    <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">% Miễn giảm</th>
-                                                    <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Số tiền</th>
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Ghi chú</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {normalizedScholarshipData.map((item, index) => (
-                                                    <tr
-                                                        key={`${item.YearStudy}-${item.TermID}-${index}`}
-                                                        className="border-b border-border/50 transition-colors hover:bg-muted/50"
-                                                    >
-                                                        <td className="py-4 px-4 text-sm font-medium text-foreground">
-                                                            {item.YearStudy}
-                                                        </td>
-                                                        <td className="py-4 px-4 text-sm text-foreground">
-                                                            Học kỳ {item.TermID}
-                                                        </td>
-                                                        <td className="py-4 px-4 text-sm text-foreground">
-                                                            <div className="flex items-center gap-2">
-                                                                <Gift className="w-4 h-4 text-amber-500" />
-                                                                {item.TenMienGiam}
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-4 px-4 text-center">
-                                                            <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
-                                                                {item.PhanTramMienGiam}%
-                                                            </Badge>
-                                                        </td>
-                                                        <td className="py-4 px-4 text-sm text-right font-bold text-amber-600">
-                                                            {formatCurrency(item.SoTienMienGiam)}
-                                                        </td>
-                                                        <td className="py-4 px-4 text-sm text-muted-foreground">
-                                                            {item.GhiChu || '—'}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {/* Mobile Cards */}
-                                    <div className="md:hidden space-y-3">
-                                        {normalizedScholarshipData.map((item, index) => (
-                                            <div
-                                                key={`${item.YearStudy}-${item.TermID}-${index}`}
-                                                className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5"
-                                            >
-                                                <div className="flex items-start justify-between mb-3">
-                                                    <div>
-                                                        <p className="font-semibold text-foreground">{item.YearStudy}</p>
-                                                        <p className="text-sm text-muted-foreground">Học kỳ {item.TermID}</p>
-                                                    </div>
-                                                    <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
-                                                        {item.PhanTramMienGiam}%
-                                                    </Badge>
-                                                </div>
-
-                                                <div className="flex items-center gap-2 mb-3 p-2 bg-muted/50 rounded">
-                                                    <Gift className="w-4 h-4 text-amber-500" />
-                                                    <span className="text-sm font-medium">{item.TenMienGiam}</span>
-                                                </div>
-
-                                                <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                                                    <span className="text-sm text-muted-foreground">Số tiền miễn giảm</span>
-                                                    <span className="text-lg font-bold text-amber-600">
+                    <div>
+                        <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+                            <GraduationCap className="h-5 w-5 text-primary" />
+                            Chính sách miễn giảm học phí
+                        </h2>
+                        {normalizedScholarshipData.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Gift className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                                <p className="text-muted-foreground">Chưa có dữ liệu miễn giảm</p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Desktop Table */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-border">
+                                                <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Năm học</th>
+                                                <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Học kỳ</th>
+                                                <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Chính sách</th>
+                                                <th className="text-center py-3 px-4 text-sm font-semibold text-muted-foreground">% Miễn giảm</th>
+                                                <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Số tiền</th>
+                                                <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {normalizedScholarshipData.map((item, index) => (
+                                                <tr
+                                                    key={`${item.YearStudy}-${item.TermID}-${index}`}
+                                                    className="border-b border-border/50 transition-colors hover:bg-muted/50"
+                                                >
+                                                    <td className="py-4 px-4 text-sm font-medium text-foreground">
+                                                        {item.YearStudy}
+                                                    </td>
+                                                    <td className="py-4 px-4 text-sm text-foreground">
+                                                        Học kỳ {item.TermID}
+                                                    </td>
+                                                    <td className="py-4 px-4 text-sm text-foreground">
+                                                        <div className="flex items-center gap-2">
+                                                            <Gift className="w-4 h-4 text-amber-500" />
+                                                            {item.TenMienGiam}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-4 text-center">
+                                                        <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                                            {item.PhanTramMienGiam}%
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="py-4 px-4 text-sm text-right font-bold text-amber-600">
                                                         {formatCurrency(item.SoTienMienGiam)}
-                                                    </span>
-                                                </div>
+                                                    </td>
+                                                    <td className="py-4 px-4 text-sm text-muted-foreground">
+                                                        {item.GhiChu || '—'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                                                {item.GhiChu && (
-                                                    <p className="text-sm text-muted-foreground mt-2 italic">
-                                                        {item.GhiChu}
-                                                    </p>
-                                                )}
+                                {/* Mobile Cards */}
+                                <div className="md:hidden space-y-3">
+                                    {normalizedScholarshipData.map((item, index) => (
+                                        <div
+                                            key={`${item.YearStudy}-${item.TermID}-${index}`}
+                                            className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5"
+                                        >
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div>
+                                                    <p className="font-semibold text-foreground">{item.YearStudy}</p>
+                                                    <p className="text-sm text-muted-foreground">Học kỳ {item.TermID}</p>
+                                                </div>
+                                                <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                                    {item.PhanTramMienGiam}%
+                                                </Badge>
                                             </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </CardContent>
-                    </Card>
+
+                                            <div className="flex items-center gap-2 mb-3 p-2 bg-muted/50 rounded">
+                                                <Gift className="w-4 h-4 text-amber-500" />
+                                                <span className="text-sm font-medium">{item.TenMienGiam}</span>
+                                            </div>
+
+                                            <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                                                <span className="text-sm text-muted-foreground">Số tiền miễn giảm</span>
+                                                <span className="text-lg font-bold text-amber-600">
+                                                    {formatCurrency(item.SoTienMienGiam)}
+                                                </span>
+                                            </div>
+
+                                            {item.GhiChu && (
+                                                <p className="text-sm text-muted-foreground mt-2 italic">
+                                                    {item.GhiChu}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>

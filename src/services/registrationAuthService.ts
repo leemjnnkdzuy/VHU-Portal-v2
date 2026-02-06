@@ -1,11 +1,10 @@
 import {getToken} from "./authService";
 
-// Use proxy in dev, direct URL in production
-const isDev = import.meta.env.DEV;
+const WORKER_URL = "https://vhu-portal-proxy.duylelv17.workers.dev";
 
 const CONFIG = {
-	portal_api: isDev ? "/api-portal" : "https://portal_api.vhu.edu.vn/api",
-	regist_api: isDev ? "/api-regist" : "https://regist_api.vhu.edu.vn/api",
+	portal_api: `${WORKER_URL}/portal`,
+	regist_api: `${WORKER_URL}/regist`,
 	apiKey: "pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzvL2auxaFJBvw==",
 	clientId: "vhu",
 };
