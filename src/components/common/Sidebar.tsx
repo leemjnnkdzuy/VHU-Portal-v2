@@ -36,7 +36,6 @@ import {
 	Sun,
 	Moon,
 	Bot,
-	X,
 	Mail,
 	CalendarCheck,
 	MoreVertical,
@@ -288,7 +287,7 @@ function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
 						/>
 						<div className='flex-1 min-w-0'>
 							<h1
-								className='font-bold text-foreground text-sm cursor-pointer hover:text-primary transition-colors truncate'
+								className='font-bold text-foreground text-sm cursor-pointer hover:text-primary transition-colors leading-tight'
 								onClick={() => handleNavigation("/home")}
 							>
 								Trường Đại Học Văn Hiến
@@ -297,13 +296,6 @@ function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
 								Cổng thông tin sinh viên
 							</p>
 						</div>
-						<Button
-							variant='ghost'
-							size='icon'
-							className='shrink-0 opacity-0 pointer-events-none'
-						>
-							<X size={20} />
-						</Button>
 					</div>
 				</div>
 
