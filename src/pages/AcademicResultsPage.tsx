@@ -7,6 +7,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	getStudyPrograms,
 	getStudyProgramResults,
@@ -282,42 +283,18 @@ function AcademicResultsPage() {
 				{/* Controls */}
 				<div className='flex flex-col sm:flex-row gap-3'>
 					{/* View Mode Tabs */}
-					<div className='flex items-center gap-1 p-1 bg-muted rounded-lg flex-1 sm:flex-initial h-10'>
-						<Button
-							variant={
-								viewMode === "program" ? "default" : "ghost"
-							}
-							size='sm'
-							onClick={() => setViewMode("program")}
-							disabled={isLoading}
-							className={cn(
-								"gap-2 transition-all flex-1 sm:flex-initial h-8",
-								viewMode === "program" ? "shadow-sm" : (
-									"hover:bg-background/50"
-								),
-							)}
-						>
-							<List className='w-4 h-4' />
-							<span>Theo lộ trình</span>
-						</Button>
-						<Button
-							variant={
-								viewMode === "curriculum" ? "default" : "ghost"
-							}
-							size='sm'
-							onClick={() => setViewMode("curriculum")}
-							disabled={isLoading}
-							className={cn(
-								"gap-2 transition-all flex-1 sm:flex-initial h-8",
-								viewMode === "curriculum" ? "shadow-sm" : (
-									"hover:bg-background/50"
-								),
-							)}
-						>
-							<Table className='w-4 h-4' />
-							<span>Theo CT</span>
-						</Button>
-					</div>
+					<Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "program" | "curriculum")} className="w-full sm:w-auto">
+						<TabsList className="grid w-full grid-cols-2 sm:flex sm:w-auto">
+							<TabsTrigger value="program" disabled={isLoading}>
+								<List className='w-4 h-4' />
+								<span>Theo lộ trình</span>
+							</TabsTrigger>
+							<TabsTrigger value="curriculum" disabled={isLoading}>
+								<Table className='w-4 h-4' />
+								<span>Theo CT</span>
+							</TabsTrigger>
+						</TabsList>
+					</Tabs>
 					{/* Statistics Toggle Button */}
 					<Button
 						variant={
@@ -332,7 +309,7 @@ function AcademicResultsPage() {
 							)
 						}
 						disabled={isLoading || yearlyResults.length === 0}
-						className='gap-2 h-10'
+						className='gap-2 h-9'
 					>
 						<BarChart3 className='w-4 h-4' />
 						<span>

@@ -259,32 +259,18 @@ function FinancePage() {
                                 <Wallet className="h-5 w-5 text-primary shrink-0" />
                                 <span>Chi tiết học phí</span>
                             </h2>
-                            <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground shrink-0">
-                                <button
-                                    onClick={() => setViewMode('all')}
-                                    className={cn(
-                                        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-2 sm:px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-1",
-                                        viewMode === 'all'
-                                            ? "bg-background text-foreground shadow"
-                                            : "hover:bg-background/50 hover:text-foreground"
-                                    )}
-                                >
-                                    <List className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Tất cả</span>
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('byYear')}
-                                    className={cn(
-                                        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-2 sm:px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-1",
-                                        viewMode === 'byYear'
-                                            ? "bg-background text-foreground shadow"
-                                            : "hover:bg-background/50 hover:text-foreground"
-                                    )}
-                                >
-                                    <CalendarDays className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Theo năm</span>
-                                </button>
-                            </div>
+                            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'all' | 'byYear')}>
+                                <TabsList className="shrink-0">
+                                    <TabsTrigger value="all">
+                                        <List className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Tất cả</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="byYear">
+                                        <CalendarDays className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Theo năm</span>
+                                    </TabsTrigger>
+                                </TabsList>
+                            </Tabs>
                         </div>
                         {filteredFinanceData.length === 0 ? (
                             <div className="text-center py-12">

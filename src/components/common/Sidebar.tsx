@@ -11,6 +11,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "@/hooks/useTheme";
 import { useInfoStore } from "@/stores/infoStore";
 import assets from "@/assets";
@@ -396,26 +397,18 @@ function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
 								<DropdownMenuSeparator />
 								<div className='px-2 py-1.5'>
 									<p className='text-xs text-muted-foreground mb-2'>Giao diện</p>
-									<div className='flex items-center gap-1'>
-										<Button
-											variant={theme === "light" ? "default" : "ghost"}
-											size='sm'
-											className='flex-1 h-8 gap-1'
-											onClick={() => setTheme("light")}
-										>
-											<Sun size={14} />
-											Sáng
-										</Button>
-										<Button
-											variant={theme === "dark" ? "default" : "ghost"}
-											size='sm'
-											className='flex-1 h-8 gap-1'
-											onClick={() => setTheme("dark")}
-										>
-											<Moon size={14} />
-											Tối
-										</Button>
-									</div>
+									<Tabs value={theme} onValueChange={(v) => setTheme(v as "light" | "dark" | "system")} className="w-full">
+										<TabsList className="w-full flex h-8">
+											<TabsTrigger value="light" className="flex-1 text-xs px-2">
+												<Sun size={14} className="mr-1.5" />
+												Sáng
+											</TabsTrigger>
+											<TabsTrigger value="dark" className="flex-1 text-xs px-2">
+												<Moon size={14} className="mr-1.5" />
+												Tối
+											</TabsTrigger>
+										</TabsList>
+									</Tabs>
 								</div>
 								<DropdownMenuSeparator />
 								<DropdownMenuItem
