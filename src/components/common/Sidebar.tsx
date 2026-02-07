@@ -1,8 +1,18 @@
-import {useState, useEffect, useMemo} from "react";
-import {useNavigate, useLocation} from "react-router-dom";
-import {cn} from "@/lib/utils";
-import {Button} from "@/components/ui/button";
-import {useTheme} from "@/hooks/useTheme";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import ChangePasswordDialog from "@/components/common/ChangePasswordDialog";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/hooks/useTheme";
+import { useInfoStore } from "@/stores/infoStore";
 import assets from "@/assets";
 import {
 	Bell,
@@ -28,6 +38,10 @@ import {
 	Bot,
 	X,
 	Mail,
+	CalendarCheck,
+	MoreVertical,
+	Pencil,
+	KeyRound,
 } from "lucide-react";
 
 interface MenuItem {
@@ -48,11 +62,13 @@ interface SidebarProps {
 	onLogout: () => void;
 }
 
-function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
+function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [isDesktop, setIsDesktop] = useState(false);
-	const {theme, setTheme} = useTheme();
+	const [showChangePassword, setShowChangePassword] = useState(false);
+	const { theme, setTheme } = useTheme();
+	const { studentInfo, fetchStudentInfo, getInitials } = useInfoStore();
 
 	const selectedPath = location.pathname;
 	const isRegistrationMode = useMemo(() => {
@@ -61,6 +77,11 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 			!location.pathname.includes("/student/registration-results")
 		);
 	}, [location.pathname]);
+
+	// Fetch student info on mount
+	useEffect(() => {
+		fetchStudentInfo();
+	}, [fetchStudentInfo]);
 
 	useEffect(() => {
 		const checkScreenSize = () => {
@@ -103,8 +124,8 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 		{
 			title: "Thông tin cá nhân",
 			items: [
-				{name: "Thông tin sinh viên", path: "/student", icon: IdCard},
-				{name: "Thông báo", path: "/student/notifications", icon: Bell},
+				{ name: "Thông tin sinh viên", path: "/student", icon: IdCard },
+				{ name: "Thông báo", path: "/student/notifications", icon: Bell },
 			],
 		},
 		{
@@ -165,7 +186,7 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 		{
 			title: "Chức năng trực tuyến",
 			items: [
-				{name: "AI Chatbot", path: "/student/chatbot", icon: Bot},
+				{ name: "AI Chatbot", path: "/student/chatbot", icon: Bot },
 				{
 					name: "Đăng ký học phần",
 					path: "",
@@ -180,6 +201,11 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 					icon: GraduationCap,
 				},
 				{
+					name: "Đăng kí thi lại",
+					path: "/student/retake",
+					icon: CalendarCheck,
+				},
+				{
 					name: "Ý kiến thảo luận",
 					path: "/student/discussion",
 					icon: MessageSquare,
@@ -189,7 +215,7 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 					path: "/student/conduct-assessment",
 					icon: BarChart3,
 				},
-				{name: "Liên hệ - góp ý", path: "/student/contact", icon: Mail},
+				{ name: "Liên hệ - góp ý", path: "/student/contact", icon: Mail },
 				{
 					name: "Hoạt động cộng đồng",
 					path: "/student/community-service",
@@ -200,7 +226,7 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 					path: "/student/certificates",
 					icon: Library,
 				},
-				{name: "Học bổng", path: "/student/scholarship", icon: Gift},
+				{ name: "Học bổng", path: "/student/scholarship", icon: Gift },
 			],
 		},
 	];
@@ -321,7 +347,7 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 												"cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200",
 												isSelected ?
 													"bg-primary text-primary-foreground font-medium"
-												:	"text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+													: "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
 											)}
 										>
 											<Icon
@@ -340,45 +366,82 @@ function Sidebar({isOpen, onClose, onLogout}: SidebarProps) {
 				</div>
 
 				{/* Footer */}
-				<div className='p-4 border-t border-border space-y-3'>
-					{/* Theme Toggle */}
-					<div className='flex items-center justify-between px-3 py-2 rounded-lg bg-accent/50'>
-						<span className='text-sm text-muted-foreground'>
-							Giao diện
-						</span>
-						<div className='flex items-center gap-1'>
-							<Button
-								variant={
-									theme === "light" ? "default" : "ghost"
-								}
-								size='icon'
-								className='h-8 w-8'
-								onClick={() => setTheme("light")}
-							>
-								<Sun size={16} />
-							</Button>
-							<Button
-								variant={theme === "dark" ? "default" : "ghost"}
-								size='icon'
-								className='h-8 w-8'
-								onClick={() => setTheme("dark")}
-							>
-								<Moon size={16} />
-							</Button>
-						</div>
-					</div>
+				<div className='p-4 border-t border-border'>
+					<div className='flex items-center gap-3'>
+						{/* Avatar */}
+						<Avatar className='h-10 w-10 border-2 border-primary/20'>
+							<AvatarFallback className='bg-gradient-to-br from-primary to-primary/60 text-primary-foreground font-semibold text-sm'>
+								{getInitials()}
+							</AvatarFallback>
+						</Avatar>
 
-					{/* Logout Button */}
-					<Button
-						variant='destructive'
-						className='w-full justify-start gap-2'
-						onClick={onLogout}
-					>
-						<LogOut size={18} />
-						<span>Đăng xuất</span>
-					</Button>
+						{/* Info */}
+						<div className='flex-1 min-w-0'>
+							<p className='text-sm font-semibold text-foreground truncate'>
+								{studentInfo?.HoTen || 'Đang tải...'}
+							</p>
+							<p className='text-xs text-muted-foreground font-mono'>
+								{studentInfo?.MaSinhVien || '---'}
+							</p>
+						</div>
+
+						{/* Dropdown Menu */}
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant='ghost' size='icon' className='h-8 w-8 shrink-0'>
+									<MoreVertical size={18} />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align='end' className='w-56'>
+								<DropdownMenuItem onClick={() => navigate('/student/update')}>
+									<Pencil size={16} className='mr-2' />
+									Cập nhật thông tin
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => setShowChangePassword(true)}>
+									<KeyRound size={16} className='mr-2' />
+									Đổi mật khẩu
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<div className='px-2 py-1.5'>
+									<p className='text-xs text-muted-foreground mb-2'>Giao diện</p>
+									<div className='flex items-center gap-1'>
+										<Button
+											variant={theme === "light" ? "default" : "ghost"}
+											size='sm'
+											className='flex-1 h-8 gap-1'
+											onClick={() => setTheme("light")}
+										>
+											<Sun size={14} />
+											Sáng
+										</Button>
+										<Button
+											variant={theme === "dark" ? "default" : "ghost"}
+											size='sm'
+											className='flex-1 h-8 gap-1'
+											onClick={() => setTheme("dark")}
+										>
+											<Moon size={14} />
+											Tối
+										</Button>
+									</div>
+								</div>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onClick={onLogout}
+									className='text-destructive focus:text-destructive focus:bg-destructive/10'
+								>
+									<LogOut size={16} className='mr-2' />
+									Đăng xuất
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
 				</div>
 			</aside>
+			<ChangePasswordDialog
+				open={showChangePassword}
+				onOpenChange={setShowChangePassword}
+			/>
 		</>
 	);
 }

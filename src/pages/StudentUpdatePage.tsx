@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGlobalNotification } from '@/hooks/useGlobalNotification';
+import { useInfoStore } from '@/stores/infoStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,16 +33,12 @@ import {
     UserCheck,
 } from 'lucide-react';
 
-interface StudentUpdateFormProps {
-    onBack: () => void;
-}
-
 interface SelectOption {
     id: number | string;
     name: string;
 }
 
-function StudentUpdateForm({ onBack }: StudentUpdateFormProps) {
+function StudentUpdatePage() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState<Record<string, unknown>>({});
     const [countries, setCountries] = useState<SelectOption[]>([]);
@@ -50,7 +48,8 @@ function StudentUpdateForm({ onBack }: StudentUpdateFormProps) {
     const [ethnicGroups, setEthnicGroups] = useState<SelectOption[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const { showSuccess, showError } = useGlobalNotification();
+    const { fetchStudentInfo } = useInfoStore();
 
     useEffect(() => {
         const initForm = async () => {
@@ -133,24 +132,21 @@ function StudentUpdateForm({ onBack }: StudentUpdateFormProps) {
         }));
     };
 
+    const handleBack = () => {
+        navigate('/student');
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
         try {
             const response = await updateStudent(formData);
-            setNotification({
-                type: 'success',
-                message: response?.Message || 'Lưu dữ liệu thành công',
-            });
-            setTimeout(() => {
-                navigate('/student');
-            }, 1500);
+            showSuccess(response?.Message || 'Lưu dữ liệu thành công');
+            // Refresh student info in store
+            await fetchStudentInfo(true);
         } catch (error: unknown) {
             const err = error as { response?: { data?: { Message?: string } } };
-            setNotification({
-                type: 'error',
-                message: err.response?.data?.Message || 'Có lỗi xảy ra khi cập nhật thông tin',
-            });
+            showError(err.response?.data?.Message || 'Có lỗi xảy ra khi cập nhật thông tin');
         } finally {
             setSaving(false);
         }
@@ -171,12 +167,15 @@ function StudentUpdateForm({ onBack }: StudentUpdateFormProps) {
 
     return (
         <div className="space-y-6">
-            {/* Notification */}
-            {notification && (
-                <div className={`p-4 rounded-lg ${notification.type === 'success' ? 'bg-green-500/20 text-green-700 dark:text-green-300' : 'bg-red-500/20 text-red-700 dark:text-red-300'}`}>
-                    {notification.message}
-                </div>
-            )}
+            {/* Page Header */}
+            <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                    Cập nhật thông tin
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                    Chỉnh sửa thông tin cá nhân của bạn
+                </p>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Thông tin cá nhân */}
@@ -661,7 +660,7 @@ function StudentUpdateForm({ onBack }: StudentUpdateFormProps) {
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={onBack}
+                        onClick={handleBack}
                         className="gap-2"
                     >
                         <ArrowLeft size={18} />
@@ -690,4 +689,4 @@ function StudentUpdateForm({ onBack }: StudentUpdateFormProps) {
     );
 }
 
-export default StudentUpdateForm;
+export default StudentUpdatePage;

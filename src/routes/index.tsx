@@ -1,5 +1,5 @@
-import type {ComponentType, ReactNode} from "react";
-import {Route} from "react-router-dom";
+import type { ComponentType, ReactNode } from "react";
+import { Route } from "react-router-dom";
 
 // Layouts
 import NothingLayout from "@/components/layouts/NothingLayout";
@@ -31,11 +31,13 @@ import RegistrationPage from "@/pages/RegistrationPage";
 import RegistrationPlanPage from "@/pages/RegistrationPlanPage";
 import RegistrationSearchPage from "@/pages/RegistrationSearchPage";
 import RegistrationHistoryPage from "@/pages/RegistrationHistoryPage";
+import RetakePage from "@/pages/RetakePage";
+import StudentUpdatePage from "@/pages/StudentUpdatePage";
 
 export interface RouteConfig {
 	path: string;
 	component: ComponentType;
-	layout: ComponentType<{children: ReactNode}>;
+	layout: ComponentType<{ children: ReactNode }>;
 }
 
 const publicRoutes: RouteConfig[] = [
@@ -65,6 +67,11 @@ const privateRoutes: RouteConfig[] = [
 	{
 		path: "/student",
 		component: StudentPage,
+		layout: SidebarLayout,
+	},
+	{
+		path: "/student/update",
+		component: StudentUpdatePage,
 		layout: SidebarLayout,
 	},
 	{
@@ -172,6 +179,11 @@ const privateRoutes: RouteConfig[] = [
 		component: ScholarshipPage,
 		layout: SidebarLayout,
 	},
+	{
+		path: "/student/retake",
+		component: RetakePage,
+		layout: SidebarLayout,
+	},
 ];
 
 export const renderRoutes = () => (
@@ -211,4 +223,4 @@ export const renderRoutes = () => (
 	</>
 );
 
-export {publicRoutes, privateRoutes};
+export { publicRoutes, privateRoutes };
