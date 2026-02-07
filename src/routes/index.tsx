@@ -33,6 +33,7 @@ import RegistrationSearchPage from "@/pages/RegistrationSearchPage";
 import RegistrationHistoryPage from "@/pages/RegistrationHistoryPage";
 import RetakePage from "@/pages/RetakePage";
 import StudentUpdatePage from "@/pages/StudentUpdatePage";
+import ChatbotPage from "@/pages/ChatbotPage";
 
 export interface RouteConfig {
 	path: string;
@@ -184,6 +185,11 @@ const privateRoutes: RouteConfig[] = [
 		component: RetakePage,
 		layout: SidebarLayout,
 	},
+	{
+		path: "/student/chatbot",
+		component: ChatbotPage,
+		layout: SidebarLayout,
+	}
 ];
 
 export const renderRoutes = () => (

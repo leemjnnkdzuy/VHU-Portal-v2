@@ -117,7 +117,7 @@ function LoginPage() {
 
                         <Button
                             type="submit"
-                            className="w-full bg-white hover:bg-white/90 font-bold h-11 text-base shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 mt-4"
+                            className="w-full bg-white hover:bg-white/90 text-primary dark:text-black font-bold h-11 text-base shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 mt-4"
                             disabled={isLoading}
                         >
                             {isLoading ? (
