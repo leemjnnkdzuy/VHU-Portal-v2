@@ -149,6 +149,51 @@ function RetakePage() {
                 </div>
             </div>
 
+            {/* Note Section */}
+            <Card className="bg-yellow-50/50 border-yellow-200">
+                <CardContent className="p-4 md:p-6">
+                    <div className="space-y-4">
+                        <h3 className="font-bold text-lg text-red-600 uppercase flex items-center gap-2">
+                            <AlertCircle className="w-5 h-5 shrink-0" />
+                            Những lưu ý khi đăng ký tham gia kỳ thi phụ (Thi lần 2)
+                        </h3>
+
+                        <div className="space-y-2 text-sm md:text-base text-yellow-950">
+                            <p>Căn cứ phê duyệt về việc tổ chức kỳ thi phụ (thi lần 2), Trung tâm Chăm sóc Người học (TTCSNH) thông tin như sau:</p>
+
+                            <ol className="list-decimal pl-5 space-y-2">
+                                <li>Đảm bảo đăng ký đúng mã lớp học phần và tên môn học cần thi lại.</li>
+                                <li>Sinh viên chỉ thực hiện đăng ký các học phần điểm bị điểm F, F+, vắng thi/hoãn thi trong kỳ thi chính.</li>
+                                <li>Sinh viên không hoàn tất lệ phí trong đúng thời hạn sẽ không có tên trong danh sách thi.</li>
+                                <li>Trường hợp sinh viên được duyệt Hoãn thi sẽ được cập nhật điểm I và khi đăng ký dự thi không cần đóng lệ phí.</li>
+                                <li>
+                                    Hình thức hoàn tất lệ phí:
+                                    <ul className="list-disc pl-5 mt-2 space-y-2">
+                                        <li>Lệ phí đăng ký thi: 100.000 đồng/học phần.</li>
+                                        <li>
+                                            Hình thức đóng lệ phí:
+                                            <ul className="list-[circle] pl-5 mt-2 space-y-2">
+                                                <li>
+                                                    Ưu tiên <strong>Chuyển khoản</strong> qua Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank) để tránh thời gian chờ tại TT CSNH:
+                                                    <ul className="list-[square] pl-5 mt-2 space-y-1">
+                                                        <li>Đơn vị nhận: Trường Đại học Văn Hiến.</li>
+                                                        <li>Số TK: 068686133333 – Sacombank, Chi nhánh Quận 10, TP.HCM</li>
+                                                        <li><strong>Nội dung: &lt;MSSV&gt;, &lt;Họ tên&gt;, &lt;Mã học phần thi lại&gt;</strong></li>
+                                                        <li><span className="underline">Lưu ý khi chuyển khoản:</span> Không sử dụng hình thức chuyển qua ATM hoặc các hình thức không hiển thị rõ nội dung.</li>
+                                                    </ul>
+                                                </li>
+                                                <li>Trực tiếp tại Trung tâm Chăm sóc Người học</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <p className="font-medium italic mt-4">Nhà trường sẽ không hoàn lại lệ phí nếu sinh viên thực hiện sai thao tác và không đúng quy định.</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Registered Count */}
