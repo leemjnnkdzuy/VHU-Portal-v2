@@ -91,6 +91,70 @@ export interface RegisteredClass {
 	BeginDate: string;
 	EndDate: string;
 	StudyUnitTypeName: string;
+    ScheduleStudyUnitAlias?: string;
+    StudyUnitID?: string;
+    StudyUnitName?: string | null;
+    StudyUnitTypeID?: number;
+    Status?: number;
+    IsTranfer?: boolean;
+    IsDelete?: boolean;
+    TrungLich?: boolean;
+}
+
+export interface ClassStudyUnitItem {
+    StudyUnitID: string;
+    StudyUnitName: string | null;
+    CurriculumID: string;
+    CurriculumName: string;
+    CurriculumType: string;
+    NumberOfScheduleStudyUnit: number;
+    Credits: number;
+    CurriculumTypeGroupName: string;
+    IsInsert: boolean;
+    SelectionID: string;
+    SelectionName: string | null;
+}
+
+export interface ClassStudyUnitGroup {
+    SelectionName: string | null;
+    Selections: ClassStudyUnitItem[];
+}
+
+export interface ClassAllowRegistGroup {
+    CurriculumTypeGroupName: string;
+    classStudyUnits: ClassStudyUnitGroup[];
+}
+
+export interface ScheduleStudyUnit {
+    CurriculumID: string;
+    ScheduleStudyUnitAlias: string;
+    CurriculumName: string;
+    StudyUnitID: string;
+    TypeName: string;
+    Credits: number;
+    StudentQuotas: string;
+    StudyUnitTypeID: number;
+    NumberOfStudents: number;
+    Schedules: string;
+    ProfessorName: string;
+    IsRegisted: boolean;
+    ListOfClassStudentID: string;
+    NumberOfChilds: number;
+    FeeDebt: string;
+    ParentID: string;
+    UpdateDate: string;
+    NumberRegistOfEmpty: string;
+    IsHocTrucTuyen: string;
+    IsOnTap: string;
+    IsSongNgu: string;
+    isOpen?: boolean;
+    isOpenChilrentTask?: boolean;
+}
+
+export interface CheckConflictResponse {
+    IsConflict: boolean;
+    IsFull: boolean;
+    Message: string | null;
 }
 
 // Get all study programs for registration
@@ -124,6 +188,146 @@ export const getRegistSemesterQuota = async (
 		console.error("Error fetching registration quota:", error);
 		throw error;
 	}
+};
+
+// ==================== NORMAL REGISTRATION APIs ====================
+
+// Get all classes registered
+export const getAllClassRegisted = async (
+    status: string,
+    turnId: number,
+): Promise<{ Rows: RegisteredClass[], Reval: unknown }> => {
+    try {
+        const response = await registrationApi.post(
+            "/Regist/GetAllClassRegisted",
+            {
+                ReqParam1: status,
+                ReqParam2: turnId.toString(),
+            },
+        );
+        return response.data || { Rows: [], Reval: null };
+    } catch (error) {
+        console.error("Error fetching registered classes:", error);
+        throw error;
+    }
+};
+
+// Get all classes allowed to register
+export const getAllClassAllowRegist = async (
+    studyProgramId: string,
+    studyType: string,
+    yearStudy: string,
+    termId: string,
+): Promise<ClassAllowRegistGroup[]> => {
+    try {
+        const response = await registrationApi.post(
+            "/Regist/GetAllClassAllowRegist",
+            {
+                ReqParam1: studyProgramId,
+                ReqParam2: studyType,
+                ReqParam3: yearStudy,
+                ReqParam4: termId,
+                ReqParam5: "",
+            },
+        );
+        return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error("Error fetching allowed classes:", error);
+        throw error;
+    }
+};
+
+// Get all schedule units for a class
+export const getAllScheduleUnitAllowRegist = async (
+    studyProgramId: string,
+    studyType: string,
+    studyUnitId: string,
+): Promise<ScheduleStudyUnit[]> => {
+    try {
+        const response = await registrationApi.post(
+            "/Regist/GetAllScheduleUnitAllowRegist",
+            {
+                ReqParam1: studyProgramId,
+                ReqParam2: studyType,
+                ReqParam3: studyUnitId,
+            },
+        );
+        return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error("Error fetching schedule units:", error);
+        throw error;
+    }
+};
+
+// Check if registration conflicts
+export const checkExitsRegist = async (
+    studyProgramId: string,
+    schedules: ScheduleStudyUnit[]
+): Promise<CheckConflictResponse> => {
+    try {
+        const response = await registrationApi.post(
+            "/Regist/CheckExitsRegist",
+            schedules,
+            {
+                params: {
+                    StudyProgramID: studyProgramId
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error checking registration conflict:", error);
+        throw error;
+    }
+};
+
+// Submit registration
+export const registScheduleStudyUnit = async (
+    turnId: number,
+    studyProgramId: string,
+    schedules: ScheduleStudyUnit[]
+): Promise<string> => {
+    try {
+        const response = await registrationApi.post(
+            "/Regist/RegistScheduleStudyUnit",
+            schedules,
+            {
+                params: {
+                    TurnID: turnId,
+                    Action: "REGIST",
+                    StudyProgramID: studyProgramId
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error submitting registration:", error);
+        throw error;
+    }
+};
+
+// Remove registration
+export const removeScheduleStudyUnit = async (
+    turnId: number,
+    studyProgramId: string,
+    registeredClass: RegisteredClass
+): Promise<string> => {
+    try {
+        const response = await registrationApi.post(
+            "/Regist/RemoveScheduleStudyUnit",
+            registeredClass,
+            {
+                params: {
+                    TurnID: turnId,
+                    StudyProgramID: studyProgramId
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error removing registration:", error);
+        throw error;
+    }
 };
 
 // ==================== PLAN REGISTRATION APIs ====================

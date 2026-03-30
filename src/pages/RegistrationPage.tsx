@@ -1,112 +1,323 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, BookOpen, AlertCircle, ChevronRight, CalendarClock } from 'lucide-react';
-import { getAllStudyPrograms, type StudyProgram } from '@/services/registrationService';
-import { initializeRegistrationSession } from '@/services/registrationAuthService';
+import { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { useGlobalNotification } from '@/hooks/useGlobalNotification';
+import {
+    getAllStudyPrograms,
+    getRegistSemesterQuota,
+    getAllStudyTypes,
+    getAllClassRegisted,
+    getAllClassAllowRegist,
+    removeScheduleStudyUnit,
+    type StudyProgram,
+    type RegistSemesterQuota,
+    type StudyType,
+    type RegisteredClass,
+    type ClassAllowRegistGroup,
+    type ClassStudyUnitItem,
+} from '@/services/registrationService';
+import { initializeRegistrationSession } from '@/services/registrationAuthService';
+import { getStudyProgramResultsByCurriculum, getStudyPrograms } from '@/services/academicService';
+
+import RegistrationHeader from '@/components/common/RegistrationPage/RegistrationHeader';
+import RegistrationFilters from '@/components/common/RegistrationPage/RegistrationFilters';
+import RegisteredClassesCard from '@/components/common/RegistrationPage/RegisteredClassesCard';
+import AvailableCoursesList from '@/components/common/RegistrationPage/AvailableCoursesList';
+import ScheduleSelectionDialog from '@/components/common/RegistrationPage/ScheduleSelectionDialog';
+
+interface AcademicCourseResult {
+    CurriculumID: string;
+    CurriculumName: string;
+    Credits: string;
+    DiemTK_10: string;
+    DiemTK_4: string;
+    DiemTK_Chu: string;
+    IsPass: string;
+    HPTuongDuong?: string;
+    isEquivalentOf?: string;
+}
+
+
 
 function RegistrationPage() {
+    const { showError, showInfo, showSuccess } = useGlobalNotification();
+
     const [studyPrograms, setStudyPrograms] = useState<StudyProgram[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { showError } = useGlobalNotification();
+    const [selectedProgramId, setSelectedProgramId] = useState<string>("");
+    const [quota, setQuota] = useState<RegistSemesterQuota | null>(null);
+    const [studyTypes, setStudyTypes] = useState<StudyType[]>([]);
+    const [selectedStudyType, setSelectedStudyType] = useState<string>("");
+
+    const [registeredClasses, setRegisteredClasses] = useState<RegisteredClass[]>([]);
+    const [allowedClasses, setAllowedClasses] = useState<ClassAllowRegistGroup[]>([]);
+
+    const [selectedCourseForReg, setSelectedCourseForReg] = useState<ClassStudyUnitItem | null>(null);
+    const [cancelingClassId, setCancelingClassId] = useState<string | null>(null);
+
+    const [isInitializing, setIsInitializing] = useState(true);
+    const [isLoadingQuota, setIsLoadingQuota] = useState(false);
+    const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+    const [academicResults, setAcademicResults] = useState<any>(null);
+
+    const academicLookup = useMemo(() => {
+        const map = new Map<string, AcademicCourseResult>();
+        if (!academicResults || !academicResults.tbStudyPrograms) return map;
+
+        academicResults.tbStudyPrograms.forEach((year: any) => {
+            year.DanhSachCTDT?.forEach((semester: any) => {
+                semester.DanhSachDiemHocPhan?.forEach((group: any) => {
+                    group.DanhSachDiemChiTiet?.forEach((course: any) => {
+                        if (course.IsPass === "1" && course.CurriculumID) {
+                            const mainCode = String(course.CurriculumID).trim().toUpperCase();
+                            // Only set if not already set, or if we want to prioritize direct matches
+                            if (!map.has(mainCode)) {
+                                map.set(mainCode, course);
+                            }
+                            
+                            if (course.HPTuongDuong) {
+                                const equivalents = String(course.HPTuongDuong)
+                                    .split(',')
+                                    .map(s => s.trim().toUpperCase())
+                                    .filter(Boolean);
+                                    
+                                equivalents.forEach(eq => {
+                                    if (!map.has(eq)) {
+                                        map.set(eq, { ...course, isEquivalentOf: mainCode });
+                                    }
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+        });
+        return map;
+    }, [academicResults]);
+
+    const availableStudyTypes = useMemo(() => {
+        if (!quota || !studyTypes.length) return [];
+        return studyTypes.filter((type) => {
+            if (!type.MapID) return false;
+            const quotaKey = type.MapID as keyof RegistSemesterQuota;
+            const value = quota[quotaKey];
+            return value === true || value === 1;
+        });
+    }, [quota, studyTypes]);
 
     useEffect(() => {
-        const fetchPrograms = async () => {
+        const initialize = async () => {
             try {
-                // Initialize registration session (get token)
                 await initializeRegistrationSession();
-
-                const data = await getAllStudyPrograms();
-                setStudyPrograms(data);
+                const [programs, types] = await Promise.all([
+                    getAllStudyPrograms(),
+                    getAllStudyTypes(),
+                ]);
+                setStudyPrograms(programs);
+                setStudyTypes(types);
+                if (programs.length > 0) {
+                    setSelectedProgramId(programs[0].StudyProgramID);
+                }
             } catch (err) {
-                console.error('Error:', err);
-                showError('Không thể kết nối đến hệ thống đăng ký học phần');
+                console.error("Error initializing:", err);
+                showError("Không thể kết nối đến hệ thống đăng ký");
             } finally {
-                setIsLoading(false);
+                setIsInitializing(false);
+            }
+        };
+        initialize();
+    }, [showError]);
+
+    useEffect(() => {
+        if (!selectedProgramId) return;
+
+        const fetchAcademicResults = async () => {
+            try {
+                const academicPrograms = await getStudyPrograms();
+                if (academicPrograms && academicPrograms.length > 0) {
+                    const academicProgramId = academicPrograms[0].StudyProgramID;
+                    const results = await getStudyProgramResultsByCurriculum(academicProgramId);
+                    setAcademicResults(results || null);
+                }
+            } catch (err) {
+                console.error("Error fetching academic results:", err);
             }
         };
 
-        fetchPrograms();
-    }, [showError]);
+        const fetchQuota = async () => {
+            setIsLoadingQuota(true);
+            try {
+                const quotaData = await getRegistSemesterQuota(selectedProgramId);
+                setQuota(quotaData);
+                if (quotaData) {
+                    const firstAvailable = studyTypes.find((type) => {
+                        if (!type.MapID) return false;
+                        const quotaKey = type.MapID as keyof RegistSemesterQuota;
+                        const value = quotaData[quotaKey];
+                        return value === true || value === 1;
+                    });
+                    if (firstAvailable) {
+                        setSelectedStudyType(firstAvailable.LoaiHinh);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching quota:", err);
+                showError("Không thể tải thông tin đợt đăng ký");
+            } finally {
+                setIsLoadingQuota(false);
+            }
+        };
 
-    if (isLoading) {
+        fetchAcademicResults();
+        fetchQuota();
+    }, [selectedProgramId, studyTypes, showError]);
+
+    useEffect(() => {
+        if (!selectedProgramId || !selectedStudyType || !quota?.YearStudy || !quota?.TermID || typeof quota.IdDot === "undefined") return;
+        
+        const fetchClasses = async () => {
+            setIsLoadingClasses(true);
+            try {
+                const [registered, allowed] = await Promise.all([
+                    getAllClassRegisted("0", quota.IdDot),
+                    getAllClassAllowRegist(
+                        selectedProgramId,
+                        selectedStudyType,
+                        quota.YearStudy,
+                        quota.TermID,
+                    ),
+                ]);
+                setRegisteredClasses(registered?.Rows || []);
+                setAllowedClasses(allowed);
+            } catch (err) {
+                console.error("Error fetching classes:", err);
+                showError("Không thể tải danh sách học phần");
+            } finally {
+                setIsLoadingClasses(false);
+            }
+        };
+        fetchClasses();
+    }, [selectedProgramId, selectedStudyType, quota?.YearStudy, quota?.TermID, quota?.IdDot, showError]);
+
+    const summary = useMemo(() => {
+        const totalRegistered = registeredClasses.length;
+        const totalCredits = registeredClasses.reduce((sum, c) => sum + (c.Credits || 0), 0);
+        const totalAvailable = allowedClasses.reduce((sum, group) =>
+            sum + (group.classStudyUnits?.reduce((s, plan) => s + (plan.Selections?.length || 0), 0) || 0), 0);
+        return { totalRegistered, totalCredits, totalAvailable };
+    }, [registeredClasses, allowedClasses]);
+
+    const handleRefresh = async () => {
+        if (!selectedProgramId || !quota || typeof quota.IdDot === "undefined") return;
+        setIsLoadingClasses(true);
+        try {
+            const [registered, allowed] = await Promise.all([
+                getAllClassRegisted("0", quota.IdDot),
+                getAllClassAllowRegist(selectedProgramId, selectedStudyType, quota.YearStudy, quota.TermID),
+            ]);
+            setRegisteredClasses(registered?.Rows || []);
+            setAllowedClasses(allowed);
+            showInfo("Đã làm mới dữ liệu");
+        } catch {
+            showError("Không thể làm mới dữ liệu");
+        } finally {
+            setIsLoadingClasses(false);
+        }
+    };
+
+    const handleCancelCourse = async (registeredCls: RegisteredClass) => {
+        if (!quota || typeof quota.IdDot === "undefined") {
+            showError("Thiếu thông tin hủy đăng ký");
+            return;
+        }
+        setCancelingClassId(registeredCls.ScheduleStudyUnitID);
+        try {
+            const message = await removeScheduleStudyUnit(
+                quota.IdDot,
+                selectedProgramId,
+                registeredCls
+            );
+            showSuccess(typeof message === "string" ? message : `Đã hủy đăng ký ${registeredCls.CurriculumName}`);
+            await handleRefresh();
+        } catch (error) {
+            const errName = error instanceof Error ? error.message : "Hủy đăng ký thất bại";
+            showError(errName);
+        } finally {
+            setCancelingClassId(null);
+        }
+    };
+
+    if (isInitializing) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="text-center space-y-4">
-                    <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-                    <p className="text-muted-foreground">Đang tải thông tin đăng ký...</p>
+            <div className='flex items-center justify-center min-h-[60vh]'>
+                <div className='text-center space-y-4'>
+                    <Loader2 className='w-12 h-12 animate-spin text-primary mx-auto' />
+                    <p className='text-muted-foreground'>Đang kết nối hệ thống đăng ký...</p>
                 </div>
             </div>
         );
     }
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                    Đăng ký học phần
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                    Chọn chương trình đào tạo để tiến hành đăng ký
-                </p>
-            </div>
-
-            {studyPrograms.length === 0 ? (
-                <Card className="border-0 shadow-lg">
-                    <CardContent className="py-12">
-                        <div className="text-center">
-                            <AlertCircle className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                            <p className="text-muted-foreground">
-                                Không tìm thấy chương trình đào tạo nào khả dụng
-                            </p>
+    if (studyPrograms.length === 0) {
+        return (
+            <div className='flex items-center justify-center min-h-[60vh]'>
+                <Card className='max-w-md w-full border-destructive/50'>
+                    <CardContent className='pt-6'>
+                        <div className='text-center space-y-4'>
+                            <AlertCircle className='w-12 h-12 text-destructive mx-auto' />
+                            <p className='text-destructive'>Không tìm thấy chương trình đào tạo nào</p>
                         </div>
                     </CardContent>
                 </Card>
-            ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {studyPrograms.map((program) => (
-                        <Card
-                            key={program.StudyProgramID}
-                            className="border-0 shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-card to-secondary/10"
-                        >
-                            <CardHeader className="pb-3">
-                                <div className="flex justify-between items-start gap-4">
-                                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                                        <BookOpen className="w-6 h-6 text-primary" />
-                                    </div>
-                                    <Badge variant={program.IsOpen ? "default" : "secondary"}>
-                                        {program.IsOpen ? "Đang mở" : "Đã đóng"}
-                                    </Badge>
-                                </div>
-                                <CardTitle className="mt-4 text-xl">
-                                    {program.StudyProgramName}
-                                </CardTitle>
-                                <CardDescription>
-                                    Mã CT: {program.StudyProgramID}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex items-center text-sm text-muted-foreground gap-2">
-                                        <CalendarClock className="w-4 h-4" />
-                                        <span>Trạng thái: {program.IsOpen ? "Cho phép đăng ký" : "Ngưng đăng ký"}</span>
-                                    </div>
+            </div>
+        );
+    }
 
-                                    <Button
-                                        className="w-full group-hover:bg-primary/90"
-                                        disabled={!program.IsOpen}
-                                    >
-                                        {program.IsOpen ? "Vào đăng ký" : "Chi tiết"}
-                                        <ChevronRight className="w-4 h-4 ml-2" />
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
+    return (
+        <div className='space-y-6 pb-10'>
+            <RegistrationHeader summary={summary} quota={quota} />
+
+            <RegistrationFilters
+                studyPrograms={studyPrograms}
+                selectedProgramId={selectedProgramId}
+                onProgramChange={setSelectedProgramId}
+                availableStudyTypes={availableStudyTypes}
+                selectedStudyType={selectedStudyType}
+                onStudyTypeChange={setSelectedStudyType}
+                onRefresh={handleRefresh}
+                isLoadingClasses={isLoadingClasses}
+            />
+
+            <RegisteredClassesCard
+                registeredClasses={registeredClasses}
+                quota={quota}
+                cancelingClassId={cancelingClassId}
+                onCancelCourse={handleCancelCourse}
+            />
+
+            <AvailableCoursesList
+                allowedClasses={allowedClasses}
+                registeredClasses={registeredClasses}
+                isLoadingClasses={isLoadingClasses}
+                isLoadingQuota={isLoadingQuota}
+                quota={quota}
+                academicLookup={academicLookup}
+                onSelectCourse={setSelectedCourseForReg}
+                showInfo={showInfo}
+                showError={showError}
+            />
+
+            <ScheduleSelectionDialog
+                course={selectedCourseForReg}
+                studyProgramId={selectedProgramId}
+                studyType={selectedStudyType}
+                turnId={quota?.IdDot || 0}
+                isOpen={!!selectedCourseForReg}
+                onClose={() => setSelectedCourseForReg(null)}
+                onSuccess={() => {
+                    setSelectedCourseForReg(null);
+                    handleRefresh();
+                }}
+            />
         </div>
     );
 }

@@ -63,26 +63,26 @@ function ScholarshipPage() {
         fetchYearTermData();
     }, [showError]);
 
-    // Fetch scholarship data
-    const fetchScholarshipData = async () => {
-        if (!selectedYear || !selectedTerm) return;
-
-        setIsLoading(true);
-        try {
-            const [openData, registeredData] = await Promise.all([
-                getOpenScholarships(selectedYear, selectedTerm),
-                getRegisteredScholarships(selectedYear, selectedTerm),
-            ]);
-            setOpenScholarships(openData);
-            setRegisteredScholarships(registeredData);
-        } catch (err) {
-            console.error('Error:', err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     useEffect(() => {
+        // Fetch scholarship data
+        const fetchScholarshipData = async () => {
+            if (!selectedYear || !selectedTerm) return;
+
+            setIsLoading(true);
+            try {
+                const [openData, registeredData] = await Promise.all([
+                    getOpenScholarships(selectedYear, selectedTerm),
+                    getRegisteredScholarships(selectedYear, selectedTerm),
+                ]);
+                setOpenScholarships(openData);
+                setRegisteredScholarships(registeredData);
+            } catch (err) {
+                console.error('Error:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         fetchScholarshipData();
     }, [selectedYear, selectedTerm]);
 
@@ -94,7 +94,15 @@ function ScholarshipPage() {
         try {
             await registerScholarship(selectedScholarship.id);
             showSuccess(`Đăng ký học bổng "${selectedScholarship.name}" thành công!`);
-            fetchScholarshipData(); // Refresh list
+            // Fetch immediately
+            if (selectedYear && selectedTerm) {
+                const [openData, registeredData] = await Promise.all([
+                    getOpenScholarships(selectedYear, selectedTerm),
+                    getRegisteredScholarships(selectedYear, selectedTerm),
+                ]);
+                setOpenScholarships(openData);
+                setRegisteredScholarships(registeredData);
+            }
         } catch (err) {
             console.error('Error:', err);
             showError('Đăng ký thất bại. Vui lòng thử lại.');

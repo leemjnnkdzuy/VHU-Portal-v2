@@ -41,7 +41,7 @@ export const getRegisteredScholarships = async (yearStudy: string, termId: strin
     }
 };
 
-export const registerScholarship = async (scholarshipId: string): Promise<any> => {
+export const registerScholarship = async (scholarshipId: string): Promise<unknown> => {
     try {
         const response = await api.post('/student/DangKyHocBong', {
             IdHocBong: scholarshipId
